@@ -1,0 +1,27 @@
+/// Frozen held-out confusion matrix at the declared 0.50 illustrative threshold.
+table ConfusionMatrix
+	lineageTag: abea56e0-e722-455e-a9f1-37b641afe57e
+
+	column actual_class
+		dataType: string
+		isKey
+		lineageTag: fe044549-367f-48dc-9619-798198b75216
+		summarizeBy: none
+		sourceColumn: actual_class
+
+	column predicted_retained
+		dataType: int64
+		lineageTag: 14e7c012-ccf5-4649-867d-5707dc1dba18
+		summarizeBy: none
+		sourceColumn: predicted_retained
+
+	column predicted_churned
+		dataType: int64
+		lineageTag: 9697e9c0-0112-4b8a-ae75-c6fda3f87d0b
+		summarizeBy: none
+		sourceColumn: predicted_churned
+
+	partition ConfusionMatrix = m
+		mode: import
+		source = LoadCsv("artifacts\phase3a\v1\confusion_matrix_v1.csv", 3, {{"actual_class", type text}, {"predicted_retained", Int64.Type}, {"predicted_churned", Int64.Type}})
+

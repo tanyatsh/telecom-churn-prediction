@@ -1,0 +1,191 @@
+/// Static validation/reference outcomes at one row per scenario and capacity.
+/// These rows do not respond to disconnected what-if parameters.
+table FactScenarioOutcome
+	lineageTag: 44ae743d-ddc3-4590-bcbb-941fc0d078c9
+
+	/// Static scenario net value; requires one scenario and one capacity.
+	measure 'Static Scenario Net Expected Value' = SELECTEDVALUE(FactScenarioOutcome[net_expected_scenario_value])
+		formatString: #,##0.00
+		displayFolder: Static Scenario Reference
+		lineageTag: 0d5f86cc-ca94-4a75-a04e-bce49b301bb4
+
+	/// Static expected prevented churn; requires one scenario and one capacity.
+	measure 'Static Expected Prevented Churn' = SELECTEDVALUE(FactScenarioOutcome[expected_prevented_churn])
+		formatString: #,##0.00
+		displayFolder: Static Scenario Reference
+		lineageTag: 38deb3d0-2b87-4ecb-a9f2-5e52df8f3386
+
+	/// Static break-even effectiveness; requires one scenario and one capacity.
+	measure 'Static Break-Even Effectiveness' = SELECTEDVALUE(FactScenarioOutcome[break_even_effectiveness])
+		formatString: 0.00%
+		displayFolder: Static Scenario Reference
+		lineageTag: 8e6c582f-0a2b-4093-98ba-039a1a2066a5
+
+	column scenario
+		dataType: string
+		isHidden
+		lineageTag: de0a5e62-707b-4ebd-aaf9-e71bc4ec53ad
+		summarizeBy: none
+		sourceColumn: scenario
+
+	column capacity_fraction
+		dataType: double
+		isHidden
+		formatString: 0%
+		lineageTag: 2dcf85da-d5aa-4bba-beff-232697c8acb8
+		summarizeBy: none
+		sourceColumn: capacity_fraction
+
+	column capacity_label
+		dataType: string
+		isHidden
+		lineageTag: e6ab8a9b-9826-4bac-bb9d-54a839068feb
+		summarizeBy: none
+		sourceColumn: capacity_label
+
+	column contacted_customers
+		dataType: int64
+		lineageTag: 8810adaf-6007-4061-b7d7-779dd2b2e3a3
+		summarizeBy: none
+		sourceColumn: contacted_customers
+
+	column benefit_horizon_months
+		dataType: int64
+		lineageTag: 3f7c8185-2c09-4278-9453-63af42260a54
+		summarizeBy: none
+		sourceColumn: benefit_horizon_months
+
+	column contribution_margin_rate
+		dataType: double
+		formatString: 0%
+		lineageTag: d60d3d09-50ce-432a-8aa2-dc33f2bcee96
+		summarizeBy: none
+		sourceColumn: contribution_margin_rate
+
+	column relative_risk_reduction
+		dataType: double
+		formatString: 0%
+		lineageTag: 12b14ace-5298-4c21-9e55-c5b32f12aae9
+		summarizeBy: none
+		sourceColumn: relative_risk_reduction
+
+	column contact_cost_per_customer
+		dataType: double
+		lineageTag: 55942021-e610-4a8f-af14-fe23cb7777d1
+		summarizeBy: none
+		sourceColumn: contact_cost_per_customer
+
+	column offer_cost_per_customer
+		dataType: double
+		lineageTag: 6de0da69-4907-4714-a3d4-97bd2b111cac
+		summarizeBy: none
+		sourceColumn: offer_cost_per_customer
+
+	column offer_cost_incidence
+		dataType: string
+		lineageTag: b1bcb758-6a38-4332-80be-1bb9fba4f59e
+		summarizeBy: none
+		sourceColumn: offer_cost_incidence
+
+	column predicted_churn_sum_contacted
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 0a8210d1-1a30-47fc-8253-043301e0a6a1
+		summarizeBy: none
+		sourceColumn: predicted_churn_sum_contacted
+
+	column average_predicted_churn_probability
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 91f72425-92de-4da1-b999-7b31e9937117
+		summarizeBy: none
+		sourceColumn: average_predicted_churn_probability
+
+	column average_monthly_charges
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: a382718b-1b9b-4408-b14c-c58f0bcecfdb
+		summarizeBy: none
+		sourceColumn: average_monthly_charges
+
+	column expected_prevented_churn
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 3b854d22-17be-40e0-a195-1c3a9c60581c
+		summarizeBy: none
+		sourceColumn: expected_prevented_churn
+
+	column probability_weighted_contribution_at_full_effect
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 94a32013-98a6-43f8-ac89-2015a0f0d60f
+		summarizeBy: none
+		sourceColumn: probability_weighted_contribution_at_full_effect
+
+	column gross_expected_retained_contribution
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: fff0b7b4-9987-4539-9889-8439d2981b69
+		summarizeBy: none
+		sourceColumn: gross_expected_retained_contribution
+
+	column contact_cost_total
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: ba22d3fc-f8eb-4a8b-b609-d326d31a607d
+		summarizeBy: none
+		sourceColumn: contact_cost_total
+
+	column offer_cost_total
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 8dd7d6c4-b0b5-42f6-8019-2a279f3c98aa
+		summarizeBy: none
+		sourceColumn: offer_cost_total
+
+	column total_campaign_cost
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 6df4b9d5-eb8d-4fbd-bda5-31d79c73899c
+		summarizeBy: none
+		sourceColumn: total_campaign_cost
+
+	column net_expected_scenario_value
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 8135c39e-1300-40dd-81ea-68b9050817f6
+		summarizeBy: none
+		sourceColumn: net_expected_scenario_value
+
+	column net_expected_value_per_contact
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 8aeac400-9e6e-465c-a1a6-ad57d20709d1
+		summarizeBy: none
+		sourceColumn: net_expected_value_per_contact
+
+	column break_even_effectiveness
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 846017e3-5d42-45eb-bccf-07b7bd3cf618
+		summarizeBy: none
+		sourceColumn: break_even_effectiveness
+
+	column break_even_total_cost_per_contact
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 1a198e81-8440-46fb-8f64-2bcbfa5341ce
+		summarizeBy: none
+		sourceColumn: break_even_total_cost_per_contact
+
+	column break_even_contact_cost_after_offer
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 8eb15152-6f6d-4055-b5b0-c1aecddd9966
+		summarizeBy: none
+		sourceColumn: break_even_contact_cost_after_offer
+
+	partition FactScenarioOutcome = m
+		mode: import
+		source = LoadCsv("outputs\powerbi\phase4a\v1\scenario_outcomes_v1.csv", 24, {{"scenario", type text}, {"capacity_fraction", type number}, {"capacity_label", type text}, {"contacted_customers", Int64.Type}, {"benefit_horizon_months", Int64.Type}, {"contribution_margin_rate", type number}, {"relative_risk_reduction", type number}, {"contact_cost_per_customer", type number}, {"offer_cost_per_customer", type number}, {"offer_cost_incidence", type text}, {"predicted_churn_sum_contacted", type number}, {"average_predicted_churn_probability", type number}, {"average_monthly_charges", type number}, {"expected_prevented_churn", type number}, {"probability_weighted_contribution_at_full_effect", type number}, {"gross_expected_retained_contribution", type number}, {"contact_cost_total", type number}, {"offer_cost_total", type number}, {"total_campaign_cost", type number}, {"net_expected_scenario_value", type number}, {"net_expected_value_per_contact", type number}, {"break_even_effectiveness", type number}, {"break_even_total_cost_per_contact", type number}, {"break_even_contact_cost_after_offer", type number}})
+

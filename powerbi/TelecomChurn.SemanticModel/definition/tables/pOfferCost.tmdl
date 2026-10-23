@@ -1,0 +1,16 @@
+/// Disconnected optional one-time offer-cost parameter.
+table pOfferCost
+	lineageTag: 435092f4-63f6-4410-8793-17459a58a61b
+
+	column Value
+		dataType: int64
+		formatString: 0
+		lineageTag: 1f90ea7d-bbfa-4a39-83f8-432d53e61f74
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+	partition pOfferCost = calculated
+		mode: import
+		source = GENERATESERIES(0, 100, 1)
+

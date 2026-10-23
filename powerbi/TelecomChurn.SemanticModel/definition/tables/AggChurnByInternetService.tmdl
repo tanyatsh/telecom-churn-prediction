@@ -1,0 +1,34 @@
+/// Descriptive churn aggregates at one row per internet-service category.
+table AggChurnByInternetService
+	lineageTag: 213a4b7a-25b7-4d3e-8b7f-837cba29b62f
+
+	column internet_service
+		dataType: string
+		isKey
+		lineageTag: 36e5b7fa-f4d8-4949-92fd-35c91a2df052
+		summarizeBy: none
+		sourceColumn: internet_service
+
+	column group_size
+		dataType: int64
+		lineageTag: 14fb7f69-b04f-4532-af58-09f8e2720737
+		summarizeBy: none
+		sourceColumn: group_size
+
+	column churned_customers
+		dataType: int64
+		lineageTag: f826a32b-c38e-47ac-aa35-3e0d8f814943
+		summarizeBy: none
+		sourceColumn: churned_customers
+
+	column churn_rate_pct
+		dataType: double
+		formatString: 0.00
+		lineageTag: 303f22ef-9ad6-4ed0-b659-80fe309c24ef
+		summarizeBy: none
+		sourceColumn: churn_rate_pct
+
+	partition AggChurnByInternetService = m
+		mode: import
+		source = LoadCsv("outputs\eda\churn_by_internet_service.csv", 4, {{"internet_service", type text}, {"group_size", Int64.Type}, {"churned_customers", Int64.Type}, {"churn_rate_pct", type number}})
+

@@ -1,0 +1,45 @@
+# Raw and derived data
+data/raw/
+data/interim/
+data/processed/
+
+# Generated analysis artifacts
+artifacts/
+models/
+outputs/
+reports/figures/
+notebooks/.ipynb_checkpoints/
+*.duckdb.wal
+
+# Local environments and secrets
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Python caches, test output, and packaging
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Logs and OS/editor metadata
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Power BI Desktop local state and cache
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+**/.pbi/cache.*
+**/.pbi/*.abf

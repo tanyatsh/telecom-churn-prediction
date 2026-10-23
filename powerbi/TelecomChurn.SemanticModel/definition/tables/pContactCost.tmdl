@@ -1,0 +1,16 @@
+/// Disconnected hypothetical one-time contact-cost parameter.
+table pContactCost
+	lineageTag: 3fb8334b-a3aa-4f4e-b57c-84fc0fb9fb58
+
+	column Value
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ba5cc95-ba89-43fb-a6cb-5b0fae62e143
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+	partition pContactCost = calculated
+		mode: import
+		source = GENERATESERIES(0, 50, 1)
+

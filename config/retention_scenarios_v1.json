@@ -1,0 +1,40 @@
+{
+  "artifact_version": "v1",
+  "capacities": [0.10, 0.20, 0.30],
+  "currency_unit": "unspecified currency units",
+  "effectiveness_definition": "relative reduction in predicted churn risk among contacted customers",
+  "offer_cost_incidence": "incurred once for every contacted customer",
+  "scenarios": [
+    {
+      "name": "conservative",
+      "benefit_horizon_months": 3,
+      "contribution_margin_rate": 0.40,
+      "relative_risk_reduction": 0.10,
+      "contact_cost_per_customer": 8.0,
+      "offer_cost_per_customer": 10.0
+    },
+    {
+      "name": "base",
+      "benefit_horizon_months": 6,
+      "contribution_margin_rate": 0.55,
+      "relative_risk_reduction": 0.20,
+      "contact_cost_per_customer": 5.0,
+      "offer_cost_per_customer": 5.0
+    },
+    {
+      "name": "optimistic",
+      "benefit_horizon_months": 12,
+      "contribution_margin_rate": 0.65,
+      "relative_risk_reduction": 0.30,
+      "contact_cost_per_customer": 3.0,
+      "offer_cost_per_customer": 5.0
+    }
+  ],
+  "sensitivity": {
+    "relative_risk_reduction": [0.05, 0.10, 0.20, 0.30, 0.40],
+    "benefit_horizon_months": [3, 6, 9, 12],
+    "contribution_margin_rate": [0.30, 0.40, 0.55, 0.70],
+    "contact_cost_per_customer": [0.0, 3.0, 5.0, 8.0, 12.0],
+    "offer_cost_per_customer": [0.0, 5.0, 10.0, 20.0]
+  }
+}

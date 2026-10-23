@@ -1,0 +1,47 @@
+/// Descriptive churn aggregates at one row per ordered monthly-charge band.
+table AggChurnByMonthlyChargeBand
+	lineageTag: a5277d7b-831e-45ea-8b05-6e7d077ab148
+
+	column monthly_charge_band
+		dataType: string
+		isKey
+		lineageTag: c41697c9-6722-444d-a93c-821d0395e65e
+		summarizeBy: none
+		sourceColumn: monthly_charge_band
+		sortByColumn: monthly_charge_band_sort
+
+	column monthly_charge_band_sort
+		dataType: int64
+		isHidden
+		lineageTag: 649b3007-3fbb-488b-9718-bfef01413260
+		summarizeBy: none
+		sourceColumn: monthly_charge_band_sort
+
+	column group_size
+		dataType: int64
+		lineageTag: 7921bf4a-ddc7-4ed8-a67d-b5a261d34f5c
+		summarizeBy: none
+		sourceColumn: group_size
+
+	column churned_customers
+		dataType: int64
+		lineageTag: b31ccda8-ce29-4b20-8f53-b6c21a01137d
+		summarizeBy: none
+		sourceColumn: churned_customers
+
+	column churn_rate_pct
+		dataType: double
+		formatString: 0.00
+		lineageTag: 73da00b2-20a7-4da1-b5a7-f8271eb84efc
+		summarizeBy: none
+		sourceColumn: churn_rate_pct
+
+	partition AggChurnByMonthlyChargeBand = m
+		mode: import
+		source =
+				let
+					Source = LoadCsv("outputs\eda\churn_by_monthly_charge_band.csv", 4, {{"monthly_charge_band", type text}, {"group_size", Int64.Type}, {"churned_customers", Int64.Type}, {"churn_rate_pct", type number}}),
+					WithSort = Table.AddColumn(Source, "monthly_charge_band_sort", each List.PositionOf({"<30", "30-<60", "60-<90", "90+"}, [monthly_charge_band]) + 1, Int64.Type)
+				in
+					WithSort
+

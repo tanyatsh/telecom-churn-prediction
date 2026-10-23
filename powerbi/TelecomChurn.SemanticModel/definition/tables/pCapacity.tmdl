@@ -1,0 +1,16 @@
+/// Disconnected fixed contact-capacity parameter: 10, 20, or 30 percent.
+table pCapacity
+	lineageTag: 61091891-99d7-4409-90d8-0b77c5872127
+
+	column Value
+		dataType: double
+		formatString: 0%
+		lineageTag: ffaa9a60-fcac-4d25-901e-e01d8ec52f08
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+	partition pCapacity = calculated
+		mode: import
+		source = DATATABLE("Value", DOUBLE, {{0.10}, {0.20}, {0.30}})
+

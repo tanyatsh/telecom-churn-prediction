@@ -1,0 +1,231 @@
+/// One row per frozen held-out customer, ranked by predicted churn probability.
+/// This table contains no actual churn label and has no model relationships.
+table FactTargetCustomer
+	lineageTag: fb2772e8-2ebe-419d-a61d-88aa5deb1736
+
+	/// Selected disconnected contact capacity; defaults to the approved base value.
+	measure 'Selected Capacity' = SELECTEDVALUE(pCapacity[Value], 0.20)
+		formatString: 0%
+		displayFolder: Dynamic Scenario\Inputs
+		lineageTag: fa8e7039-7156-4d8d-9f7d-65158829a30e
+
+	/// Selected hypothetical benefit horizon in months.
+	measure 'Selected Horizon Months' = SELECTEDVALUE(pBenefitHorizon[Value], 6)
+		formatString: 0
+		displayFolder: Dynamic Scenario\Inputs
+		lineageTag: 0fc5d35e-41c8-4748-a858-9c0223d31d60
+
+	/// Selected hypothetical contribution margin fraction.
+	measure 'Selected Margin' = SELECTEDVALUE(pMargin[Value], 0.55)
+		formatString: 0%
+		displayFolder: Dynamic Scenario\Inputs
+		lineageTag: 40bf227c-6dcd-418d-8bcf-3dd3359b7198
+
+	/// Selected hypothetical relative reduction in predicted churn risk.
+	measure 'Selected Effectiveness' = SELECTEDVALUE(pEffectiveness[Value], 0.20)
+		formatString: 0%
+		displayFolder: Dynamic Scenario\Inputs
+		lineageTag: 84b0361c-90b4-49b6-a99c-219d45bc1573
+
+	/// Selected hypothetical one-time contact cost per contacted customer.
+	measure 'Selected Contact Cost' = SELECTEDVALUE(pContactCost[Value], 5)
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Inputs
+		lineageTag: 94c9097c-fede-4505-8f0d-43e51cd66df7
+
+	/// Selected optional one-time offer cost per contacted customer.
+	measure 'Selected Offer Cost' = SELECTEDVALUE(pOfferCost[Value], 5)
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Inputs
+		lineageTag: 83ddd0d7-12f8-4143-af06-826cb01f023b
+
+	/// True only when all hypothetical inputs stay within approved domains.
+	measure 'Valid Scenario Inputs' =
+			VAR Capacity = [Selected Capacity]
+			VAR Horizon = [Selected Horizon Months]
+			VAR Margin = [Selected Margin]
+			VAR Effectiveness = [Selected Effectiveness]
+			VAR ContactCost = [Selected Contact Cost]
+			VAR OfferCost = [Selected Offer Cost]
+			RETURN
+				Capacity IN {0.10, 0.20, 0.30}
+					&& Horizon > 0
+					&& Margin >= 0 && Margin <= 1
+					&& Effectiveness >= 0 && Effectiveness <= 1
+					&& ContactCost >= 0
+					&& OfferCost >= 0
+		displayFolder: Dynamic Scenario\Validation
+		lineageTag: 91f00325-1f6a-4b0b-8763-c91836885b4d
+
+	/// Text status for displaying whether the current inputs are valid.
+	measure 'Scenario Input Status' = IF([Valid Scenario Inputs], "Valid illustrative inputs", "Invalid scenario inputs")
+		displayFolder: Dynamic Scenario\Validation
+		lineageTag: 5764f235-39f1-4907-a762-62f3cded0201
+
+	/// Number of held-out customers contacted at the selected capacity.
+	measure 'Contacted Customers Dynamic' = CEILING([Held-out Test Customer Count] * [Selected Capacity], 1)
+		formatString: #,##0
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: d553ff3b-ae35-4e9a-be91-b96a42082e8c
+
+	/// Sum of frozen predicted churn probabilities in the selected top-risk audience.
+	measure 'Predicted Churn Sum Dynamic' =
+			VAR N = [Contacted Customers Dynamic]
+			VAR Contacted =
+				TOPN(
+					N,
+					ALL(FactTargetCustomer),
+					FactTargetCustomer[risk_rank], ASC,
+					FactTargetCustomer[customer_id], ASC
+				)
+			RETURN
+				IF(
+					[Valid Scenario Inputs],
+					SUMX(Contacted, FactTargetCustomer[predicted_probability])
+				)
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: d7cc80ae-f0cd-4fb8-ba4d-8829d7f2adc6
+
+	/// Expected prevented churn count under hypothetical relative risk reduction.
+	measure 'Expected Prevented Churn Dynamic' = [Selected Effectiveness] * [Predicted Churn Sum Dynamic]
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: f6c406e9-310e-40aa-9287-09e9ef380010
+
+	/// Probability-weighted contribution if effectiveness were 100 percent.
+	measure 'Full-Effect Contribution Dynamic' =
+			VAR N = [Contacted Customers Dynamic]
+			VAR Contacted =
+				TOPN(
+					N,
+					ALL(FactTargetCustomer),
+					FactTargetCustomer[risk_rank], ASC,
+					FactTargetCustomer[customer_id], ASC
+				)
+			RETURN
+				IF(
+					[Valid Scenario Inputs],
+					SUMX(
+						Contacted,
+						FactTargetCustomer[predicted_probability]
+							* FactTargetCustomer[monthly_charges]
+							* [Selected Horizon Months]
+							* [Selected Margin]
+					)
+				)
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: 7db926b0-9a24-44a0-ad33-488f6898d987
+
+	/// Hypothetical expected retained contribution after applying effectiveness.
+	measure 'Gross Expected Retained Contribution Dynamic' = [Selected Effectiveness] * [Full-Effect Contribution Dynamic]
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: 3679e1d7-f753-47bc-9bcb-b80e5c9b6515
+
+	/// One-time contact plus offer costs for every contacted customer.
+	measure 'Campaign Cost Dynamic' = [Contacted Customers Dynamic] * ([Selected Contact Cost] + [Selected Offer Cost])
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: 8df7d85d-68ec-41b3-93a2-67bff7d46d3d
+
+	/// Hypothetical gross expected contribution less campaign cost; not actual ROI.
+	measure 'Net Expected Scenario Value Dynamic' = [Gross Expected Retained Contribution Dynamic] - [Campaign Cost Dynamic]
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: 0918dfda-4438-4e8e-8467-a541da9db013
+
+	/// Relative risk reduction required for expected gross contribution to equal campaign cost.
+	measure 'Break-Even Effectiveness Dynamic' = DIVIDE([Campaign Cost Dynamic], [Full-Effect Contribution Dynamic])
+		formatString: 0.00%
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: cfccbabe-d47e-4c1b-902c-3edaa3e4643c
+
+	/// Hypothetical net expected scenario value per contacted customer.
+	measure 'Net Expected Value Per Contact Dynamic' = DIVIDE([Net Expected Scenario Value Dynamic], [Contacted Customers Dynamic])
+		formatString: #,##0.00
+		displayFolder: Dynamic Scenario\Outputs
+		lineageTag: 11d52beb-96c4-478e-a1ec-388e4363db4d
+
+	column customer_id
+		dataType: string
+		isHidden
+		isKey
+		lineageTag: 62a225d4-1365-4f09-aebf-72181cdc4794
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column risk_rank
+		dataType: int64
+		lineageTag: baf6dc24-fe13-4d7b-9db8-869d0770ffad
+		summarizeBy: none
+		sourceColumn: risk_rank
+
+	column predicted_probability
+		dataType: double
+		formatString: 0.00%
+		lineageTag: ef287d02-19bd-4f67-a597-16e0aa8c6228
+		summarizeBy: none
+		sourceColumn: predicted_probability
+
+	column monthly_charges
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 69242dcf-b48e-4e19-81da-a90d579d428b
+		summarizeBy: none
+		sourceColumn: monthly_charges
+
+	column selected_top_10pct
+		dataType: boolean
+		isHidden
+		lineageTag: 062844c5-a041-47b0-a750-90fee6a47255
+		summarizeBy: none
+		sourceColumn: selected_top_10pct
+
+	column selected_top_20pct
+		dataType: boolean
+		isHidden
+		lineageTag: 74cb0137-4193-4289-8f0e-0a639483f91f
+		summarizeBy: none
+		sourceColumn: selected_top_20pct
+
+	column selected_top_30pct
+		dataType: boolean
+		isHidden
+		lineageTag: cf532800-3d45-4cf9-afea-76c829e00e42
+		summarizeBy: none
+		sourceColumn: selected_top_30pct
+
+	column base_expected_prevented_churn
+		dataType: double
+		isHidden
+		lineageTag: ee2ff911-e353-4686-9e69-5ee08c922322
+		summarizeBy: none
+		sourceColumn: base_expected_prevented_churn
+
+	column base_expected_gross_retained_contribution
+		dataType: double
+		isHidden
+		lineageTag: d7ae9e28-ff94-439a-b74a-449c0e87822e
+		summarizeBy: none
+		sourceColumn: base_expected_gross_retained_contribution
+
+	column base_cost_if_contacted
+		dataType: double
+		isHidden
+		lineageTag: aa556b5d-32b2-4bf8-99f6-dedf13ae3bda
+		summarizeBy: none
+		sourceColumn: base_cost_if_contacted
+
+	column base_net_expected_value_if_contacted
+		dataType: double
+		isHidden
+		lineageTag: 7dc4e585-9303-425f-95ce-6bed390872bd
+		summarizeBy: none
+		sourceColumn: base_net_expected_value_if_contacted
+
+	partition FactTargetCustomer = m
+		mode: import
+		source = LoadCsv("outputs\powerbi\phase4a\v1\customer_targeting_v1.csv", 11, {{"customer_id", type text}, {"risk_rank", Int64.Type}, {"predicted_probability", type number}, {"monthly_charges", type number}, {"selected_top_10pct", type logical}, {"selected_top_20pct", type logical}, {"selected_top_30pct", type logical}, {"base_expected_prevented_churn", type number}, {"base_expected_gross_retained_contribution", type number}, {"base_cost_if_contacted", type number}, {"base_net_expected_value_if_contacted", type number}})
+

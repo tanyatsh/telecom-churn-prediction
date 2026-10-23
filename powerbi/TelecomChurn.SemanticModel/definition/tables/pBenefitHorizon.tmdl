@@ -1,0 +1,16 @@
+/// Disconnected hypothetical benefit-horizon parameter in months.
+table pBenefitHorizon
+	lineageTag: 9f932e5f-3b2d-4a14-85c6-59323496aa09
+
+	column Value
+		dataType: int64
+		formatString: 0
+		lineageTag: 3ba6fc13-400a-4211-a50f-bc6b20cc38fa
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+	partition pBenefitHorizon = calculated
+		mode: import
+		source = GENERATESERIES(1, 24, 1)
+

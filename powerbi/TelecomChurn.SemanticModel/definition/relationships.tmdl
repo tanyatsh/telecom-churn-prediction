@@ -1,0 +1,20 @@
+relationship rel_ScenarioOutcome_Capacity
+	fromColumn: FactScenarioOutcome.capacity_fraction
+	toColumn: DimCapacity.capacity_fraction
+
+relationship rel_BreakEven_Capacity
+	fromColumn: FactBreakEven.capacity_fraction
+	toColumn: DimCapacity.capacity_fraction
+
+relationship rel_Sensitivity_Capacity
+	fromColumn: FactSensitivity.capacity_fraction
+	toColumn: DimCapacity.capacity_fraction
+
+relationship rel_ScenarioOutcome_Scenario
+	fromColumn: FactScenarioOutcome.scenario
+	toColumn: DimScenario.name
+
+relationship rel_BreakEven_Scenario
+	fromColumn: FactBreakEven.scenario
+	toColumn: DimScenario.name
+

@@ -1,0 +1,78 @@
+/// One-row descriptive-population summary for all 7,043 audited customers.
+table KPIOverallChurn
+	lineageTag: 770033db-3411-4985-8645-cb85cc5859f5
+
+	/// Total customers in the descriptive population, not the held-out test set.
+	measure 'Descriptive Customer Count' = MAX(KPIOverallChurn[customers])
+		formatString: #,##0
+		displayFolder: Executive KPIs
+		lineageTag: 350f48eb-1ad1-4a7b-81fc-d9fda36c6035
+
+	/// Observed churned customers in the descriptive population.
+	measure 'Descriptive Churned Customers' = MAX(KPIOverallChurn[churned_customers])
+		formatString: #,##0
+		displayFolder: Executive KPIs
+		lineageTag: 0e6f8c5c-2cb3-47de-af5d-822d129af716
+
+	/// Observed retained customers in the descriptive population.
+	measure 'Descriptive Retained Customers' = MAX(KPIOverallChurn[retained_customers])
+		formatString: #,##0
+		displayFolder: Executive KPIs
+		lineageTag: 073af2b4-cbca-4ed5-95ff-a3584efe6e5e
+
+	/// Observed descriptive-population churn rate; descriptive, not causal.
+	measure 'Descriptive Churn Rate' = DIVIDE(MAX(KPIOverallChurn[churn_rate_pct]), 100)
+		formatString: 0.00%
+		displayFolder: Executive KPIs
+		lineageTag: 44e80d21-9470-459c-bc03-d2ea41be75c2
+
+	/// Source rows whose blank TotalCharges values remain null in analytical data.
+	measure 'Blank TotalCharges Count' = MAX(KPIOverallChurn[missing_total_charges])
+		formatString: #,##0
+		displayFolder: Executive KPIs
+		lineageTag: 27d9b311-da51-454b-bc22-c317322395d3
+
+	/// Explicit population label used to prevent confusion with the 1,409-row test set.
+	measure 'Descriptive Population Label' = "All audited customers (n=" & FORMAT([Descriptive Customer Count], "#,##0") & ")"
+		displayFolder: Executive KPIs
+		lineageTag: 887f2160-ffaa-40f5-8f65-e1382d12f484
+
+	column customers
+		dataType: int64
+		isHidden
+		lineageTag: b14e8255-0bba-4a7d-8558-0432dc5c3f70
+		summarizeBy: none
+		sourceColumn: customers
+
+	column churned_customers
+		dataType: int64
+		isHidden
+		lineageTag: 150612bd-45bb-4924-a378-44b033d8b3c2
+		summarizeBy: none
+		sourceColumn: churned_customers
+
+	column retained_customers
+		dataType: int64
+		isHidden
+		lineageTag: bb7d4b5c-246a-440a-a20e-ae55ec02d8ea
+		summarizeBy: none
+		sourceColumn: retained_customers
+
+	column churn_rate_pct
+		dataType: double
+		isHidden
+		lineageTag: 5088d90e-7ba2-4596-8ccb-d0d384234e95
+		summarizeBy: none
+		sourceColumn: churn_rate_pct
+
+	column missing_total_charges
+		dataType: int64
+		isHidden
+		lineageTag: 2df9ebab-c7fb-494f-9920-0667484eb907
+		summarizeBy: none
+		sourceColumn: missing_total_charges
+
+	partition KPIOverallChurn = m
+		mode: import
+		source = LoadCsv("outputs\eda\overall_summary.csv", 5, {{"customers", Int64.Type}, {"churned_customers", Int64.Type}, {"retained_customers", Int64.Type}, {"churn_rate_pct", type number}, {"missing_total_charges", Int64.Type}})
+

@@ -1,0 +1,41 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["KPIOverallChurn","AggChurnByContract","AggChurnByTenureBand","AggChurnByInternetService","AggChurnByPaymentMethod","AggChurnByMonthlyChargeBand","KPIModelTest","ModelComparison","CalibrationDecile","ConfusionMatrix","PermutationImportance","SubgroupPerformance","RiskDecile","DimCapacity","DimScenario","FactScenarioOutcome","FactBreakEven","FactSensitivity","FactTargetCustomer","DataRoot","LoadCsv"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table KPIOverallChurn
+ref table AggChurnByContract
+ref table AggChurnByTenureBand
+ref table AggChurnByInternetService
+ref table AggChurnByPaymentMethod
+ref table AggChurnByMonthlyChargeBand
+ref table KPIModelTest
+ref table ModelComparison
+ref table CalibrationDecile
+ref table ConfusionMatrix
+ref table PermutationImportance
+ref table SubgroupPerformance
+ref table RiskDecile
+ref table DimCapacity
+ref table DimScenario
+ref table FactScenarioOutcome
+ref table FactBreakEven
+ref table FactSensitivity
+ref table FactTargetCustomer
+ref table pCapacity
+ref table pBenefitHorizon
+ref table pMargin
+ref table pEffectiveness
+ref table pContactCost
+ref table pOfferCost
+
+ref cultureInfo en-US
+

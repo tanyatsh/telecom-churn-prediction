@@ -1,0 +1,102 @@
+/// Static break-even results at one row per scenario and capacity.
+table FactBreakEven
+	lineageTag: 4919d0fb-90d1-4167-865a-121d6804df08
+
+	column scenario
+		dataType: string
+		isHidden
+		lineageTag: f91675d5-4565-414c-8f46-1981186fc2bb
+		summarizeBy: none
+		sourceColumn: scenario
+
+	column capacity_fraction
+		dataType: double
+		isHidden
+		formatString: 0%
+		lineageTag: 8b6773a2-c454-4c15-bffd-0cc654843544
+		summarizeBy: none
+		sourceColumn: capacity_fraction
+
+	column capacity_label
+		dataType: string
+		isHidden
+		lineageTag: 42a50b31-b06d-444e-a812-4d7709501a59
+		summarizeBy: none
+		sourceColumn: capacity_label
+
+	column contacted_customers
+		dataType: int64
+		lineageTag: 9ab0458e-f73e-4bdc-acbe-0b7c47c28b5f
+		summarizeBy: none
+		sourceColumn: contacted_customers
+
+	column benefit_horizon_months
+		dataType: int64
+		lineageTag: 4df61a96-aaab-469d-8207-4b5f55b91dd9
+		summarizeBy: none
+		sourceColumn: benefit_horizon_months
+
+	column contribution_margin_rate
+		dataType: double
+		formatString: 0%
+		lineageTag: aa6be17a-9d49-45a6-bd4b-9ebf925121eb
+		summarizeBy: none
+		sourceColumn: contribution_margin_rate
+
+	column relative_risk_reduction
+		dataType: double
+		formatString: 0%
+		lineageTag: 72e6b483-e734-4aae-88e1-ca9def6af226
+		summarizeBy: none
+		sourceColumn: relative_risk_reduction
+
+	column contact_cost_per_customer
+		dataType: double
+		lineageTag: 2feac14c-621c-4ced-9485-fbff3b873b33
+		summarizeBy: none
+		sourceColumn: contact_cost_per_customer
+
+	column offer_cost_per_customer
+		dataType: double
+		lineageTag: 2fa37eb4-e536-43d1-8016-36d9faa0a529
+		summarizeBy: none
+		sourceColumn: offer_cost_per_customer
+
+	column offer_cost_incidence
+		dataType: string
+		lineageTag: d8f23c89-674a-4a01-b857-44b8185b26c3
+		summarizeBy: none
+		sourceColumn: offer_cost_incidence
+
+	column break_even_effectiveness
+		dataType: double
+		formatString: 0.00%
+		lineageTag: f3bf77d3-70c8-4c97-9874-3e6d1aa0f9ec
+		summarizeBy: none
+		sourceColumn: break_even_effectiveness
+
+	column break_even_total_cost_per_contact
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: a920711e-ec6b-44ab-a010-9df1a3f9ed6a
+		summarizeBy: none
+		sourceColumn: break_even_total_cost_per_contact
+
+	column break_even_contact_cost_after_offer
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: fee6d16a-cca6-4c9c-ac9e-aaaf6f022353
+		summarizeBy: none
+		sourceColumn: break_even_contact_cost_after_offer
+
+	column current_total_cost_per_contact
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: fdec1c51-f43e-4732-939d-a83b7fc57dca
+		summarizeBy: none
+		sourceColumn: current_total_cost_per_contact
+
+	partition FactBreakEven = m
+		mode: import
+		source = LoadCsv("outputs\powerbi\phase4a\v1\break_even_v1.csv", 14, {{"scenario", type text}, {"capacity_fraction", type number}, {"capacity_label", type text}, {"contacted_customers", Int64.Type}, {"benefit_horizon_months", Int64.Type}, {"contribution_margin_rate", type number}, {"relative_risk_reduction", type number}, {"contact_cost_per_customer", type number}, {"offer_cost_per_customer", type number}, {"offer_cost_incidence", type text}, {"break_even_effectiveness", type number}, {"break_even_total_cost_per_contact", type number}, {"break_even_contact_cost_after_offer", type number}, {"current_total_cost_per_contact", type number}})
+

@@ -1,0 +1,42 @@
+/// Frozen held-out calibration summary, one row per equal-count risk decile.
+table CalibrationDecile
+	lineageTag: 0bfa0c96-2a07-461c-96e7-8c94dd797bdf
+
+	column calibration_decile
+		dataType: int64
+		isKey
+		lineageTag: 1acafac2-2086-4ad5-8aa3-520bda8f0046
+		summarizeBy: none
+		sourceColumn: calibration_decile
+
+	column group_size
+		dataType: int64
+		lineageTag: 207a5003-f28e-49f4-b309-70c75eb856a0
+		summarizeBy: none
+		sourceColumn: group_size
+
+	column mean_predicted_probability
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 9f8ac8a7-3e1c-4d8f-895d-b571f4008aa2
+		summarizeBy: none
+		sourceColumn: mean_predicted_probability
+
+	column observed_churn_rate
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 7420e850-ded4-4db5-bf25-f6ec7e64cc76
+		summarizeBy: none
+		sourceColumn: observed_churn_rate
+
+	column absolute_gap
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 53b4317c-328c-4f56-83c9-9725a0fe0a97
+		summarizeBy: none
+		sourceColumn: absolute_gap
+
+	partition CalibrationDecile = m
+		mode: import
+		source = LoadCsv("artifacts\phase3a\v1\calibration_v1.csv", 5, {{"calibration_decile", Int64.Type}, {"group_size", Int64.Type}, {"mean_predicted_probability", type number}, {"observed_churn_rate", type number}, {"absolute_gap", type number}})
+

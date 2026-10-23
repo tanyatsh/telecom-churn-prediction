@@ -1,0 +1,34 @@
+/// Descriptive churn aggregates at one row per payment-method category.
+table AggChurnByPaymentMethod
+	lineageTag: 4f56e3e9-2241-48a4-a80b-d2c24a393f06
+
+	column payment_method
+		dataType: string
+		isKey
+		lineageTag: f94f6659-2a09-44c2-affb-c657ef85fc8f
+		summarizeBy: none
+		sourceColumn: payment_method
+
+	column group_size
+		dataType: int64
+		lineageTag: fb52d86e-7dfb-485e-8ae3-c9020f92ca79
+		summarizeBy: none
+		sourceColumn: group_size
+
+	column churned_customers
+		dataType: int64
+		lineageTag: a3296389-ac39-48b2-8e07-6292300aa83f
+		summarizeBy: none
+		sourceColumn: churned_customers
+
+	column churn_rate_pct
+		dataType: double
+		formatString: 0.00
+		lineageTag: 57ff2f86-cc33-440c-9280-6cb3f8e9d712
+		summarizeBy: none
+		sourceColumn: churn_rate_pct
+
+	partition AggChurnByPaymentMethod = m
+		mode: import
+		source = LoadCsv("outputs\eda\churn_by_payment_method.csv", 4, {{"payment_method", type text}, {"group_size", Int64.Type}, {"churned_customers", Int64.Type}, {"churn_rate_pct", type number}})
+

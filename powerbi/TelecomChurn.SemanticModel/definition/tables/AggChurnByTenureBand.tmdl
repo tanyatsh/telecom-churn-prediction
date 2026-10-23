@@ -1,0 +1,47 @@
+/// Descriptive churn aggregates at one row per ordered tenure band.
+table AggChurnByTenureBand
+	lineageTag: 289a64fb-9eec-4e6b-99f6-95337c7756e3
+
+	column tenure_band
+		dataType: string
+		isKey
+		lineageTag: f3bdaba6-a1cd-402c-afda-1d1d8346696e
+		summarizeBy: none
+		sourceColumn: tenure_band
+		sortByColumn: tenure_band_sort
+
+	column tenure_band_sort
+		dataType: int64
+		isHidden
+		lineageTag: 2ccead29-4c1c-4fd8-95d2-09c3c12120cc
+		summarizeBy: none
+		sourceColumn: tenure_band_sort
+
+	column group_size
+		dataType: int64
+		lineageTag: f9862cbd-3f0d-4caa-8666-5aed2dbb243b
+		summarizeBy: none
+		sourceColumn: group_size
+
+	column churned_customers
+		dataType: int64
+		lineageTag: ae4defd8-d950-4c75-927c-d99c467be1fa
+		summarizeBy: none
+		sourceColumn: churned_customers
+
+	column churn_rate_pct
+		dataType: double
+		formatString: 0.00
+		lineageTag: 506d118f-aeed-4afd-90d4-69c1cbd9e6d9
+		summarizeBy: none
+		sourceColumn: churn_rate_pct
+
+	partition AggChurnByTenureBand = m
+		mode: import
+		source =
+				let
+					Source = LoadCsv("outputs\eda\churn_by_tenure_band.csv", 4, {{"tenure_band", type text}, {"group_size", Int64.Type}, {"churned_customers", Int64.Type}, {"churn_rate_pct", type number}}),
+					WithSort = Table.AddColumn(Source, "tenure_band_sort", each List.PositionOf({"00 months", "01-12 months", "13-24 months", "25-48 months", "49-60 months", "61-72 months"}, [tenure_band]) + 1, Int64.Type)
+				in
+					WithSort
+

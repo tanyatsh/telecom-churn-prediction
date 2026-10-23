@@ -1,0 +1,116 @@
+cultureInfo en-US
+
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "calibrationdecile.calibration_decile": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CalibrationDecile",
+			          "ConceptualProperty": "calibration_decile"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Risk decile": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "calibrationdecile.group_size": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CalibrationDecile",
+			          "ConceptualProperty": "group_size"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Customers": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "calibrationdecile.mean_predicted_probability": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CalibrationDecile",
+			          "ConceptualProperty": "mean_predicted_probability"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Predicted risk": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "calibrationdecile.observed_churn_rate": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CalibrationDecile",
+			          "ConceptualProperty": "observed_churn_rate"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Observed churn": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "calibrationdecile.absolute_gap": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CalibrationDecile",
+			          "ConceptualProperty": "absolute_gap"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Absolute gap": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+

@@ -1,0 +1,71 @@
+/// Three explicitly illustrative Phase 4A assumption scenarios.
+table DimScenario
+	lineageTag: 23b32936-d079-4455-8ab7-61935a499918
+
+	column name
+		dataType: string
+		isKey
+		lineageTag: 83c62b47-2a4e-4657-a5d2-ad5a68591026
+		summarizeBy: none
+		sourceColumn: name
+
+	column benefit_horizon_months
+		dataType: int64
+		lineageTag: ea7541eb-90cb-4636-bb09-f80ddd50ebc6
+		summarizeBy: none
+		sourceColumn: benefit_horizon_months
+
+	column contribution_margin_rate
+		dataType: double
+		formatString: 0%
+		lineageTag: 9731444a-48f1-4fbf-8901-c356061f4efa
+		summarizeBy: none
+		sourceColumn: contribution_margin_rate
+
+	column relative_risk_reduction
+		dataType: double
+		formatString: 0%
+		lineageTag: 714687c3-4364-4597-8096-5dd16e7010eb
+		summarizeBy: none
+		sourceColumn: relative_risk_reduction
+
+	column contact_cost_per_customer
+		dataType: double
+		lineageTag: 73f24d93-ebf1-41a4-9e81-7e3180d302f9
+		summarizeBy: none
+		sourceColumn: contact_cost_per_customer
+
+	column offer_cost_per_customer
+		dataType: double
+		lineageTag: c87e6d66-12d2-46bb-b988-0d05695274d7
+		summarizeBy: none
+		sourceColumn: offer_cost_per_customer
+
+	column currency_unit
+		dataType: string
+		lineageTag: fa6b759c-90b0-44c4-af6a-299e0904f2c2
+		summarizeBy: none
+		sourceColumn: currency_unit
+
+	column effectiveness_definition
+		dataType: string
+		lineageTag: 0fb0416b-52e6-4cde-bdaa-201d8acf9069
+		summarizeBy: none
+		sourceColumn: effectiveness_definition
+
+	column offer_cost_incidence
+		dataType: string
+		lineageTag: f569be79-7110-4dcf-83ad-7bf59568643b
+		summarizeBy: none
+		sourceColumn: offer_cost_incidence
+
+	column assumption_status
+		dataType: string
+		lineageTag: e5e345c9-04bb-49aa-9ef1-222c221682ad
+		summarizeBy: none
+		sourceColumn: assumption_status
+
+	partition DimScenario = m
+		mode: import
+		source = LoadCsv("outputs\powerbi\phase4a\v1\scenario_assumptions_v1.csv", 10, {{"name", type text}, {"benefit_horizon_months", Int64.Type}, {"contribution_margin_rate", type number}, {"relative_risk_reduction", type number}, {"contact_cost_per_customer", type number}, {"offer_cost_per_customer", type number}, {"currency_unit", type text}, {"effectiveness_definition", type text}, {"offer_cost_incidence", type text}, {"assumption_status", type text}})
+

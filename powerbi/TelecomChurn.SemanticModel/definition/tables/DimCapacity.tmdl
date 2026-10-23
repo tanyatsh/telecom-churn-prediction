@@ -1,0 +1,104 @@
+/// Three validated fixed contact capacities with retrospective held-out performance.
+table DimCapacity
+	lineageTag: c392cc2c-39e1-4449-8bc3-af081d8c755d
+
+	/// Contacted customers at the single selected fixed capacity.
+	measure 'Fixed Contacted Customers' = SELECTEDVALUE(DimCapacity[contacted_customers])
+		formatString: #,##0
+		displayFolder: Fixed Capacity KPIs
+		lineageTag: 8a217453-f3ce-4cb7-a040-ec0ffc636769
+
+	/// Retrospective held-out churn capture at the single selected capacity.
+	measure 'Fixed Observed Churn Capture' = SELECTEDVALUE(DimCapacity[observed_churn_capture])
+		formatString: 0.00%
+		displayFolder: Fixed Capacity KPIs
+		lineageTag: 0ab565b5-e149-484a-884b-bc6eab279ee2
+
+	/// Retrospective held-out precision at the single selected capacity.
+	measure 'Fixed Capacity Precision' = SELECTEDVALUE(DimCapacity[precision])
+		formatString: 0.00%
+		displayFolder: Fixed Capacity KPIs
+		lineageTag: d0460fe3-ff8d-4b43-962c-f143f4078b8d
+
+	/// Retrospective held-out lift at the single selected capacity.
+	measure 'Fixed Capacity Lift' = SELECTEDVALUE(DimCapacity[lift])
+		formatString: 0.0000
+		displayFolder: Fixed Capacity KPIs
+		lineageTag: 1676e012-05f7-49b2-83b2-ddf0d0d54f60
+
+	column capacity_fraction
+		dataType: double
+		isKey
+		formatString: 0%
+		lineageTag: f3aede71-534f-461c-ad3b-2d2e9b6e29b6
+		summarizeBy: none
+		sourceColumn: capacity_fraction
+
+	column capacity_label
+		dataType: string
+		lineageTag: 0ac05d3a-ab44-4340-8440-34b5a8b7d172
+		summarizeBy: none
+		sourceColumn: capacity_label
+
+	column test_customers
+		dataType: int64
+		lineageTag: 852acc76-86aa-441f-bf72-b13da1bc76d8
+		summarizeBy: none
+		sourceColumn: test_customers
+
+	column contacted_customers
+		dataType: int64
+		lineageTag: 16aafa82-885f-4c4c-ae7e-068c8e813812
+		summarizeBy: none
+		sourceColumn: contacted_customers
+
+	column observed_churned_contacted
+		dataType: int64
+		lineageTag: 09cf5462-1a5c-4822-b89c-df88b21f9c1c
+		summarizeBy: none
+		sourceColumn: observed_churned_contacted
+
+	column total_test_churned
+		dataType: int64
+		lineageTag: 937220ed-f711-484d-887f-3821c9bfc4e7
+		summarizeBy: none
+		sourceColumn: total_test_churned
+
+	column observed_churn_capture
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 9057213e-9be1-49a0-9011-05987bd8fadc
+		summarizeBy: none
+		sourceColumn: observed_churn_capture
+
+	column precision
+		dataType: double
+		formatString: 0.00%
+		lineageTag: b389c6dd-997b-4dd8-9d02-20ddb15d7de8
+		summarizeBy: none
+		sourceColumn: precision
+
+	column test_prevalence
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 6d6b22cb-b0e3-4f8b-8f2b-2e65dae47f63
+		summarizeBy: none
+		sourceColumn: test_prevalence
+
+	column lift
+		dataType: double
+		formatString: 0.0000
+		lineageTag: f8a7b17a-0039-4732-b632-4bf20f40edd7
+		summarizeBy: none
+		sourceColumn: lift
+
+	column selection_rule
+		dataType: string
+		lineageTag: b4a2599b-1b93-4a6c-a534-09d163342c87
+		summarizeBy: none
+		sourceColumn: selection_rule
+
+	partition DimCapacity = m
+		mode: import
+		source = LoadCsv("outputs\powerbi\phase4a\v1\capacity_performance_v1.csv", 11, {{"capacity_fraction", type number}, {"capacity_label", type text}, {"test_customers", Int64.Type}, {"contacted_customers", Int64.Type}, {"observed_churned_contacted", Int64.Type}, {"total_test_churned", Int64.Type}, {"observed_churn_capture", type number}, {"precision", type number}, {"test_prevalence", type number}, {"lift", type number}, {"selection_rule", type text}})
+

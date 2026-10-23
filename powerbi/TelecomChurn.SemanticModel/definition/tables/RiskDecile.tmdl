@@ -1,0 +1,76 @@
+/// Frozen held-out risk-decile diagnostics; decile 1 is highest predicted risk.
+table RiskDecile
+	lineageTag: 98994201-ae77-4ee3-ab03-37b80e199287
+
+	column calibration_decile
+		dataType: int64
+		isKey
+		lineageTag: fa8101bf-3e3a-4cfb-b68a-83f8608533aa
+		summarizeBy: none
+		sourceColumn: calibration_decile
+
+	column group_size
+		dataType: int64
+		lineageTag: f754d65b-f7bc-4826-9a32-a3ec1b1d19fb
+		summarizeBy: none
+		sourceColumn: group_size
+
+	column churned_count
+		dataType: int64
+		lineageTag: ad745583-5abb-4164-93a2-52d304e67695
+		summarizeBy: none
+		sourceColumn: churned_count
+
+	column mean_predicted_probability
+		dataType: double
+		formatString: 0.00%
+		lineageTag: c496324e-4bfc-40fe-a9cf-51053438dc0e
+		summarizeBy: none
+		sourceColumn: mean_predicted_probability
+
+	column minimum_predicted_probability
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 6e72091c-704b-41f6-94d4-492d1f2dff09
+		summarizeBy: none
+		sourceColumn: minimum_predicted_probability
+
+	column maximum_predicted_probability
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 833476f5-6b89-4244-8804-765d5d7cf55f
+		summarizeBy: none
+		sourceColumn: maximum_predicted_probability
+
+	column observed_churn_rate
+		dataType: double
+		formatString: 0.00%
+		lineageTag: df68fd57-835d-4a2a-8803-049428378267
+		summarizeBy: none
+		sourceColumn: observed_churn_rate
+
+	column absolute_calibration_gap
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 32a171c0-7be5-4330-9967-96e2770cb05f
+		summarizeBy: none
+		sourceColumn: absolute_calibration_gap
+
+	column lift_vs_test_prevalence
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 43c0db42-e1ff-42a9-80d0-0f085a57b1c7
+		summarizeBy: none
+		sourceColumn: lift_vs_test_prevalence
+
+	column cumulative_churn_capture
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 14c2dde5-9db5-4acb-9822-d1a61f172ce5
+		summarizeBy: none
+		sourceColumn: cumulative_churn_capture
+
+	partition RiskDecile = m
+		mode: import
+		source = LoadCsv("artifacts\phase3b\v1\risk_deciles_v1.csv", 10, {{"calibration_decile", Int64.Type}, {"group_size", Int64.Type}, {"churned_count", Int64.Type}, {"mean_predicted_probability", type number}, {"minimum_predicted_probability", type number}, {"maximum_predicted_probability", type number}, {"observed_churn_rate", type number}, {"absolute_calibration_gap", type number}, {"lift_vs_test_prevalence", type number}, {"cumulative_churn_capture", type number}})
+

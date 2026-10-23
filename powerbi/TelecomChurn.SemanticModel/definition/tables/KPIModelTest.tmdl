@@ -1,0 +1,227 @@
+/// One-row frozen held-out test metric source. This population contains 1,409 customers.
+table KPIModelTest
+	lineageTag: 7f1491c2-32a8-400e-9933-48d33b0f3a9d
+
+	/// Count of frozen held-out test customers used by model and scenario measures.
+	measure 'Held-out Test Customer Count' = COUNTROWS(ALL(FactTargetCustomer))
+		formatString: #,##0
+		displayFolder: Held-out Model KPIs
+		lineageTag: 8137e936-b977-4130-ae25-f6afe01ffc6d
+
+	/// Observed churned customers in the frozen held-out test set.
+	measure 'Test Churned Customers' = MAX(KPIModelTest[test_churned])
+		formatString: #,##0
+		displayFolder: Held-out Model KPIs
+		lineageTag: 90ab8d76-c93b-4e53-9dba-cc3cf57f69a5
+
+	/// Observed prevalence in the frozen held-out test set.
+	measure 'Test Prevalence' = MAX(KPIModelTest[test_prevalence])
+		formatString: 0.00%
+		displayFolder: Held-out Model KPIs
+		lineageTag: 6fd034bf-b51a-443d-a7ab-c75299dda692
+
+	/// Held-out receiver operating characteristic area under the curve.
+	measure ROC-AUC = MAX(KPIModelTest[roc_auc])
+		formatString: 0.0000
+		displayFolder: Held-out Model KPIs
+		lineageTag: 85e20289-543c-4421-88b7-62fa9862fcf1
+
+	/// Held-out precision-recall area under the curve.
+	measure PR-AUC = MAX(KPIModelTest[pr_auc])
+		formatString: 0.0000
+		displayFolder: Held-out Model KPIs
+		lineageTag: c64c924b-0f1e-4198-8889-02d169d1668c
+
+	/// Prevalence reference for held-out PR-AUC.
+	measure 'PR-AUC Baseline' = MAX(KPIModelTest[baseline_pr_auc])
+		formatString: 0.0000
+		displayFolder: Held-out Model KPIs
+		lineageTag: 1a583da6-1e56-427e-b2a1-a77d12acbf25
+
+	/// Chance reference for ROC-AUC.
+	measure 'ROC-AUC Baseline' = MAX(KPIModelTest[baseline_roc_auc])
+		formatString: 0.0000
+		displayFolder: Held-out Model KPIs
+		lineageTag: 75a424fd-6ddf-4901-9a7e-49b943057e2c
+
+	/// Held-out Brier score for probability accuracy.
+	measure 'Brier Score' = MAX(KPIModelTest[brier_score])
+		formatString: 0.0000
+		displayFolder: Held-out Model KPIs
+		lineageTag: c1e7d0ea-7fce-465a-bbb5-f242f4cc5b1f
+
+	/// Held-out logarithmic loss.
+	measure 'Log Loss' = MAX(KPIModelTest[log_loss])
+		formatString: 0.0000
+		displayFolder: Held-out Model KPIs
+		lineageTag: dece7484-f9ae-4985-a005-3ec221d355a2
+
+	/// Expected calibration error across ten equal-count test bins.
+	measure 'Calibration Error (ECE)' = MAX(KPIModelTest[expected_calibration_error_10_equal_count_bins])
+		formatString: 0.00%
+		displayFolder: Held-out Model KPIs
+		lineageTag: 6de7f085-a8f8-43ca-b9f9-6e007f8d25e4
+
+	/// Declared illustrative probability threshold; not tuned on test data.
+	measure 'Illustrative Threshold' = MAX(KPIModelTest[illustrative_threshold])
+		formatString: 0.00
+		displayFolder: Held-out Model KPIs
+		lineageTag: b3b8fee0-d7fb-49a3-836f-dd322e103493
+
+	/// Retrospective recall among the fixed top 20 percent risk audience.
+	measure 'Recall at Top 20%' = MAX(KPIModelTest[recall_at_top_20_percent])
+		formatString: 0.00%
+		displayFolder: Held-out Model KPIs
+		lineageTag: 8e32bfde-bcd4-43cd-96df-fde8a5309240
+
+	/// Retrospective precision among the fixed top 20 percent risk audience.
+	measure 'Precision at Top 20%' = MAX(KPIModelTest[precision_at_top_20_percent])
+		formatString: 0.00%
+		displayFolder: Held-out Model KPIs
+		lineageTag: 80e6e0b4-d4e2-4e4b-8b2d-45d0ad5256c3
+
+	/// Retrospective lift among the fixed top 20 percent risk audience.
+	measure 'Lift at Top 20%' = MAX(KPIModelTest[lift_at_top_20_percent])
+		formatString: 0.0000
+		displayFolder: Held-out Model KPIs
+		lineageTag: 696a0200-94b1-4c0c-bbb7-44f85394a2b5
+
+	/// True negatives at the declared 0.50 illustrative threshold.
+	measure 'Confusion TN' = CALCULATE(MAX(ConfusionMatrix[predicted_retained]), ConfusionMatrix[actual_class] = "actual_retained")
+		formatString: #,##0
+		displayFolder: Held-out Model KPIs\Confusion Matrix
+		lineageTag: 988833dc-61be-4c16-9e4e-1597a279240f
+
+	/// False positives at the declared 0.50 illustrative threshold.
+	measure 'Confusion FP' = CALCULATE(MAX(ConfusionMatrix[predicted_churned]), ConfusionMatrix[actual_class] = "actual_retained")
+		formatString: #,##0
+		displayFolder: Held-out Model KPIs\Confusion Matrix
+		lineageTag: 36203e66-fcd0-429f-aa74-524af6936627
+
+	/// False negatives at the declared 0.50 illustrative threshold.
+	measure 'Confusion FN' = CALCULATE(MAX(ConfusionMatrix[predicted_retained]), ConfusionMatrix[actual_class] = "actual_churned")
+		formatString: #,##0
+		displayFolder: Held-out Model KPIs\Confusion Matrix
+		lineageTag: b43130cd-b3a1-4522-af87-87249f0a191a
+
+	/// True positives at the declared 0.50 illustrative threshold.
+	measure 'Confusion TP' = CALCULATE(MAX(ConfusionMatrix[predicted_churned]), ConfusionMatrix[actual_class] = "actual_churned")
+		formatString: #,##0
+		displayFolder: Held-out Model KPIs\Confusion Matrix
+		lineageTag: dbc8290a-7b87-4c0d-9415-4ca48f0b08c1
+
+	/// Explicit label separating the test sample from the descriptive population.
+	measure 'Test Population Label' = "Frozen held-out test customers (n=" & FORMAT([Held-out Test Customer Count], "#,##0") & ")"
+		displayFolder: Held-out Model KPIs
+		lineageTag: 1e742fa4-81bd-4483-82ce-0197e40ca520
+
+	column baseline_pr_auc
+		dataType: double
+		isHidden
+		lineageTag: 65778b24-0f95-45f4-b2bd-dc5a1461732e
+		summarizeBy: none
+		sourceColumn: baseline_pr_auc
+
+	column baseline_roc_auc
+		dataType: double
+		isHidden
+		lineageTag: 587c5066-25b8-4afd-860c-d7f5252cf0a6
+		summarizeBy: none
+		sourceColumn: baseline_roc_auc
+
+	column brier_score
+		dataType: double
+		isHidden
+		lineageTag: 3552e82e-3a0d-453e-9a43-c0aa6a58ba79
+		summarizeBy: none
+		sourceColumn: brier_score
+
+	column expected_calibration_error_10_equal_count_bins
+		dataType: double
+		isHidden
+		lineageTag: 23839c25-6a1f-4107-9441-8fbcc7bb452a
+		summarizeBy: none
+		sourceColumn: expected_calibration_error_10_equal_count_bins
+
+	column illustrative_threshold
+		dataType: double
+		isHidden
+		lineageTag: 82000d5e-bc02-4fb2-8b6b-d6a94b6879c5
+		summarizeBy: none
+		sourceColumn: illustrative_threshold
+
+	column lift_at_top_20_percent
+		dataType: double
+		isHidden
+		lineageTag: 6442c6b6-3282-4716-87c8-eb53364d1dc9
+		summarizeBy: none
+		sourceColumn: lift_at_top_20_percent
+
+	column log_loss
+		dataType: double
+		isHidden
+		lineageTag: 0bd515b9-0fc3-4bae-9cb0-80786075c3b8
+		summarizeBy: none
+		sourceColumn: log_loss
+
+	column pr_auc
+		dataType: double
+		isHidden
+		lineageTag: 03a36899-a660-471f-8350-a1e79e9a7ecc
+		summarizeBy: none
+		sourceColumn: pr_auc
+
+	column precision_at_top_20_percent
+		dataType: double
+		isHidden
+		lineageTag: 4d47542b-2f21-4731-9342-9c029f81e3da
+		summarizeBy: none
+		sourceColumn: precision_at_top_20_percent
+
+	column recall_at_top_20_percent
+		dataType: double
+		isHidden
+		lineageTag: db497053-bd0a-4605-84ce-659e66653662
+		summarizeBy: none
+		sourceColumn: recall_at_top_20_percent
+
+	column roc_auc
+		dataType: double
+		isHidden
+		lineageTag: 0b106b1b-9816-467c-a94a-7e62e9fe0aa6
+		summarizeBy: none
+		sourceColumn: roc_auc
+
+	column test_churned
+		dataType: int64
+		isHidden
+		lineageTag: 2be3454d-ad13-4987-8c73-038b9d792c5b
+		summarizeBy: none
+		sourceColumn: test_churned
+
+	column test_customers
+		dataType: int64
+		isHidden
+		lineageTag: 57ccb895-2652-46f8-a984-fa3bfe4db801
+		summarizeBy: none
+		sourceColumn: test_customers
+
+	column test_prevalence
+		dataType: double
+		isHidden
+		lineageTag: e52fadf8-1394-474d-a72a-8d85002f83ff
+		summarizeBy: none
+		sourceColumn: test_prevalence
+
+	partition KPIModelTest = m
+		mode: import
+		source =
+				let
+					Root = Text.TrimEnd(DataRoot, {"\", "/"}),
+					Metrics = Json.Document(File.Contents(Root & "\artifacts\phase3a\v1\test_metrics_v1.json")),
+					Selected = Record.SelectFields(Metrics, {"baseline_pr_auc", "baseline_roc_auc", "brier_score", "expected_calibration_error_10_equal_count_bins", "illustrative_threshold", "lift_at_top_20_percent", "log_loss", "pr_auc", "precision_at_top_20_percent", "recall_at_top_20_percent", "roc_auc", "test_churned", "test_customers", "test_prevalence"}),
+					AsTable = Table.FromRecords({Selected}),
+					Typed = Table.TransformColumnTypes(AsTable, {{"baseline_pr_auc", type number}, {"baseline_roc_auc", type number}, {"brier_score", type number}, {"expected_calibration_error_10_equal_count_bins", type number}, {"illustrative_threshold", type number}, {"lift_at_top_20_percent", type number}, {"log_loss", type number}, {"pr_auc", type number}, {"precision_at_top_20_percent", type number}, {"recall_at_top_20_percent", type number}, {"roc_auc", type number}, {"test_churned", Int64.Type}, {"test_customers", Int64.Type}, {"test_prevalence", type number}}, "en-US")
+				in
+					Typed
+

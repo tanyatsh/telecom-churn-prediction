@@ -1,0 +1,114 @@
+/// Held-out subgroup diagnostics at one row per dimension and group.
+/// Blank metrics remain blank where a metric is undefined.
+table SubgroupPerformance
+	lineageTag: 641f1ac5-15b6-4cb6-a894-cab475fa6adf
+
+	column dimension
+		dataType: string
+		lineageTag: 3f86ae81-9313-46ae-9959-c5e25cd50124
+		summarizeBy: none
+		sourceColumn: dimension
+
+	column group
+		dataType: string
+		lineageTag: d5af94ad-5ae0-4787-8f47-9f02b7568512
+		summarizeBy: none
+		sourceColumn: group
+
+	column group_size
+		dataType: int64
+		lineageTag: 6ead665e-a0c6-4331-b6e7-dbeffb397f2c
+		summarizeBy: none
+		sourceColumn: group_size
+
+	column churned_count
+		dataType: int64
+		lineageTag: da0ca51b-3365-43d4-a223-e85dcabf883e
+		summarizeBy: none
+		sourceColumn: churned_count
+
+	column retained_count
+		dataType: int64
+		lineageTag: 633c94d5-b9df-45a1-9303-c016f5285b61
+		summarizeBy: none
+		sourceColumn: retained_count
+
+	column prevalence
+		dataType: double
+		formatString: 0.00%
+		lineageTag: e69fec3a-b422-4c8c-af16-bfb34cc4ba2a
+		summarizeBy: none
+		sourceColumn: prevalence
+
+	column mean_predicted_probability
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 769ac7e4-6248-4926-828b-0828e95d3b82
+		summarizeBy: none
+		sourceColumn: mean_predicted_probability
+
+	column calibration_gap
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 08c1eeb2-5692-4371-bbb7-86c7535bdd58
+		summarizeBy: none
+		sourceColumn: calibration_gap
+
+	column roc_auc
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 977dd7bf-5a3d-44b0-927d-e59cb19c8ec9
+		summarizeBy: none
+		sourceColumn: roc_auc
+
+	column pr_auc
+		dataType: double
+		formatString: 0.0000
+		lineageTag: d2893bbf-e536-45ec-afda-1a7ceb4a7d27
+		summarizeBy: none
+		sourceColumn: pr_auc
+
+	column brier_score
+		dataType: double
+		formatString: 0.0000
+		lineageTag: ee82117c-2b85-4d07-869c-17dd64a94759
+		summarizeBy: none
+		sourceColumn: brier_score
+
+	column recall_at_0_50
+		dataType: double
+		formatString: 0.00%
+		lineageTag: de8ab7fe-3c24-4bfa-8076-7e8838551990
+		summarizeBy: none
+		sourceColumn: recall_at_0_50
+
+	column false_positive_rate_at_0_50
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 35dfd772-9c16-43df-a4c2-0a16a35029d8
+		summarizeBy: none
+		sourceColumn: false_positive_rate_at_0_50
+
+	column precision_at_0_50
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 066ee7b6-9f27-4418-bc04-36c91d4ced19
+		summarizeBy: none
+		sourceColumn: precision_at_0_50
+
+	column small_group_flag
+		dataType: boolean
+		lineageTag: 4b9aa6a0-58c5-41d6-9b48-d17938e877ed
+		summarizeBy: none
+		sourceColumn: small_group_flag
+
+	column small_group_reason
+		dataType: string
+		lineageTag: a519a9cb-c9c2-4b24-8bc0-d5bb21857600
+		summarizeBy: none
+		sourceColumn: small_group_reason
+
+	partition SubgroupPerformance = m
+		mode: import
+		source = LoadCsv("artifacts\phase3b\v1\subgroup_performance_v1.csv", 16, {{"dimension", type text}, {"group", type text}, {"group_size", Int64.Type}, {"churned_count", Int64.Type}, {"retained_count", Int64.Type}, {"prevalence", type number}, {"mean_predicted_probability", type number}, {"calibration_gap", type number}, {"roc_auc", type number}, {"pr_auc", type number}, {"brier_score", type number}, {"recall_at_0_50", type number}, {"false_positive_rate_at_0_50", type number}, {"precision_at_0_50", type number}, {"small_group_flag", type logical}, {"small_group_reason", type text}})
+

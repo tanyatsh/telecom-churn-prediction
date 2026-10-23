@@ -1,0 +1,16 @@
+/// Disconnected hypothetical contribution-margin parameter.
+table pMargin
+	lineageTag: 6e480344-42c8-4184-9700-8598a13101d1
+
+	column Value
+		dataType: double
+		formatString: 0%
+		lineageTag: 045432f7-e30a-48c4-8ba7-4ed58dddc53d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+	partition pMargin = calculated
+		mode: import
+		source = GENERATESERIES(0.05, 1.00, 0.05)
+

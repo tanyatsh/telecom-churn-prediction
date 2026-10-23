@@ -1,0 +1,49 @@
+/// Original-feature held-out permutation importance; predictive association only.
+table PermutationImportance
+	lineageTag: c0829439-1a5d-4d6f-85b4-4deca7a676a1
+
+	column feature
+		dataType: string
+		isKey
+		lineageTag: 5d5cd779-d475-4a97-8826-64e8bc673194
+		summarizeBy: none
+		sourceColumn: feature
+
+	column roc_auc_decrease_mean
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 883dd934-d4f1-4ddc-aaa7-86e976bdfe9d
+		summarizeBy: none
+		sourceColumn: roc_auc_decrease_mean
+
+	column roc_auc_decrease_std
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 679dc0cd-612a-49ed-97ec-58685e564b4f
+		summarizeBy: none
+		sourceColumn: roc_auc_decrease_std
+
+	column pr_auc_decrease_mean
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 8eb8e66f-c3da-4cdb-901e-62d2f0a27130
+		summarizeBy: none
+		sourceColumn: pr_auc_decrease_mean
+
+	column pr_auc_decrease_std
+		dataType: double
+		formatString: 0.0000
+		lineageTag: c03ca488-dc5d-4e28-8546-7e9b7728d97a
+		summarizeBy: none
+		sourceColumn: pr_auc_decrease_std
+
+	column repeats
+		dataType: int64
+		lineageTag: 0361b81e-0ef4-4244-ba67-e138d05fcf96
+		summarizeBy: none
+		sourceColumn: repeats
+
+	partition PermutationImportance = m
+		mode: import
+		source = LoadCsv("artifacts\phase3b\v1\permutation_importance_v1.csv", 6, {{"feature", type text}, {"roc_auc_decrease_mean", type number}, {"roc_auc_decrease_std", type number}, {"pr_auc_decrease_mean", type number}, {"pr_auc_decrease_std", type number}, {"repeats", Int64.Type}})
+

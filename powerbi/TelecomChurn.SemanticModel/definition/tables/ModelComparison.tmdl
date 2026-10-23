@@ -1,0 +1,63 @@
+/// Frozen training-only cross-validation summary, one row per model family.
+table ModelComparison
+	lineageTag: 46097581-f40c-4c3a-ba47-7f2f6885f04e
+
+	column model
+		dataType: string
+		isKey
+		lineageTag: e14aa694-438b-41da-99ce-cd430495c627
+		summarizeBy: none
+		sourceColumn: model
+
+	column best_parameters
+		dataType: string
+		lineageTag: 83a3dc9f-8354-42d3-8a06-deeeeebe6712
+		summarizeBy: none
+		sourceColumn: best_parameters
+
+	column mean_cv_roc_auc
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 6578bb75-2b65-47e0-9991-93a49a0286b4
+		summarizeBy: none
+		sourceColumn: mean_cv_roc_auc
+
+	column std_cv_roc_auc
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 5ae5f2d3-1871-4fe7-931a-ff16df35a70c
+		summarizeBy: none
+		sourceColumn: std_cv_roc_auc
+
+	column mean_cv_pr_auc
+		dataType: double
+		formatString: 0.0000
+		lineageTag: ab1d9b78-3875-4b46-83f9-f9b16165aa7d
+		summarizeBy: none
+		sourceColumn: mean_cv_pr_auc
+
+	column std_cv_pr_auc
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 80375b2a-43fd-49f0-85cf-6bb126aa563d
+		summarizeBy: none
+		sourceColumn: std_cv_pr_auc
+
+	column mean_cv_log_loss
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 972328c3-e7e8-4717-b38a-3f3f4efcfb29
+		summarizeBy: none
+		sourceColumn: mean_cv_log_loss
+
+	column mean_cv_brier
+		dataType: double
+		formatString: 0.0000
+		lineageTag: 06b6a516-88d8-423f-8e9f-6e4d65667e31
+		summarizeBy: none
+		sourceColumn: mean_cv_brier
+
+	partition ModelComparison = m
+		mode: import
+		source = LoadCsv("artifacts\phase3a\v1\model_comparison_v1.csv", 8, {{"model", type text}, {"best_parameters", type text}, {"mean_cv_roc_auc", type number}, {"std_cv_roc_auc", type number}, {"mean_cv_pr_auc", type number}, {"std_cv_pr_auc", type number}, {"mean_cv_log_loss", type number}, {"mean_cv_brier", type number}})
+

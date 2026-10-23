@@ -1,0 +1,76 @@
+/// Base-scenario one-at-a-time sensitivity results.
+/// Composite grain: varied_parameter, varied_value, capacity_fraction.
+table FactSensitivity
+	lineageTag: fcf731a2-6f8b-40ec-b51a-0b4d2dde4c83
+
+	column base_scenario
+		dataType: string
+		lineageTag: eda37b2d-ffdd-486b-a3a4-8effc0c56eb1
+		summarizeBy: none
+		sourceColumn: base_scenario
+
+	column varied_parameter
+		dataType: string
+		lineageTag: 3cf3aaf7-e79e-4154-aed2-b4a25c880d71
+		summarizeBy: none
+		sourceColumn: varied_parameter
+
+	column varied_value
+		dataType: double
+		lineageTag: 37b3f184-01da-4411-b14b-8b150064b159
+		summarizeBy: none
+		sourceColumn: varied_value
+
+	column capacity_fraction
+		dataType: double
+		isHidden
+		formatString: 0%
+		lineageTag: 37221b6f-e5a4-49f0-88ef-6f27267fa546
+		summarizeBy: none
+		sourceColumn: capacity_fraction
+
+	column capacity_label
+		dataType: string
+		isHidden
+		lineageTag: c292e8bc-4c6b-4c4f-957a-34da59f57816
+		summarizeBy: none
+		sourceColumn: capacity_label
+
+	column contacted_customers
+		dataType: int64
+		lineageTag: b21013a4-412b-4759-afb3-586af823f740
+		summarizeBy: none
+		sourceColumn: contacted_customers
+
+	column net_expected_scenario_value
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 3addc29b-571e-491d-8d1e-3f3c6f9cdbd5
+		summarizeBy: none
+		sourceColumn: net_expected_scenario_value
+
+	column gross_expected_retained_contribution
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: edfff1c6-e8ea-48a5-baa6-12897911e495
+		summarizeBy: none
+		sourceColumn: gross_expected_retained_contribution
+
+	column total_campaign_cost
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 0e661854-f36c-4fc0-a3f6-88dd5d1cfdc3
+		summarizeBy: none
+		sourceColumn: total_campaign_cost
+
+	column expected_prevented_churn
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 7c4c8250-0e31-4162-b7a6-834f93ac17ce
+		summarizeBy: none
+		sourceColumn: expected_prevented_churn
+
+	partition FactSensitivity = m
+		mode: import
+		source = LoadCsv("outputs\powerbi\phase4a\v1\sensitivity_analysis_v1.csv", 10, {{"base_scenario", type text}, {"varied_parameter", type text}, {"varied_value", type number}, {"capacity_fraction", type number}, {"capacity_label", type text}, {"contacted_customers", Int64.Type}, {"net_expected_scenario_value", type number}, {"gross_expected_retained_contribution", type number}, {"total_campaign_cost", type number}, {"expected_prevented_churn", type number}})
+

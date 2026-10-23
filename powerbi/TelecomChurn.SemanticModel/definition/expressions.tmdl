@@ -1,0 +1,22 @@
+/// Required Power Query text parameter. Replace the neutral placeholder in
+/// Power BI Desktop before the first refresh.
+expression DataRoot = "<SET_PROJECT_ROOT>" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 69a6e5ff-4e4a-452c-8052-568d4bcd3bac
+
+	annotation PBI_ResultType = Text
+
+/// Loads a typed UTF-8 CSV from a path relative to DataRoot.
+expression LoadCsv =
+		(relativePath as text, columnCount as number, columnTypes as list) as table =>
+		let
+			Root = Text.TrimEnd(DataRoot, {"\", "/"}),
+			Source = Csv.Document(
+				File.Contents(Root & "\" & relativePath),
+				[Delimiter = ",", Columns = columnCount, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]
+			),
+			Headers = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+			Typed = Table.TransformColumnTypes(Headers, columnTypes, "en-US")
+		in
+			Typed
+	lineageTag: b8586569-5016-48fe-b3a3-0d1c16638f19
+

@@ -1,0 +1,16 @@
+/// Disconnected hypothetical relative churn-risk reduction parameter.
+table pEffectiveness
+	lineageTag: 9c9e5e65-b4ea-4244-98bd-821bbb0a7f84
+
+	column Value
+		dataType: double
+		formatString: 0%
+		lineageTag: 10356e1f-f4e4-41d2-9c2d-f61375e312a1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Value]
+
+	partition pEffectiveness = calculated
+		mode: import
+		source = GENERATESERIES(0.00, 1.00, 0.01)
+
