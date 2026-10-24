@@ -2,7 +2,7 @@
 
 ## Deliverable
 
-`powerbi/TelecomChurn.pbip` is a portable Power BI Project entry point. Its empty report shell points by relative path to `TelecomChurn.SemanticModel`, whose model is defined in TMDL. Phase 5A intentionally contains no report pages or visuals.
+`powerbi/TelecomChurn.pbip` is the portable Power BI Project entry point. Its report points by relative path to `TelecomChurn.SemanticModel`, whose model is defined in TMDL. The completed report contains three 1280×720 pages and 39 native visuals: 11 on **Executive Churn Overview**, 11 on **Model Performance & Explainability**, and 17 on **Retention Strategy & Scenario Simulator**.
 
 The semantic model imports 19 validated sources:
 
@@ -65,19 +65,19 @@ Ignored validation evidence is written to `artifacts/phase5a/v1/` and includes t
 ## Manual Power BI Desktop verification
 
 1. Use a current standard Power BI Desktop release. In **File > Options and settings > Options > Preview features**, enable **Power BI Desktop projects** and **Store semantic model using TMDL format** if those options are present, then restart Desktop.
-2. Open `powerbi/TelecomChurn.pbip`. The report canvas should be blank and the model should load in edit mode through the relative report-to-model reference.
+2. Open `powerbi/TelecomChurn.pbip`. Confirm that the three report pages load through the relative report-to-model reference and that **Executive Churn Overview** is the active first page.
 3. Open **Transform data > Manage Parameters**, select `DataRoot`, and replace `<SET_PROJECT_ROOT>` with the absolute local path to this project root. Do not include a trailing slash.
 4. Select **Close & Apply**, then **Refresh**. Confirm that all 19 imported tables load, the six calculated parameter tables materialize, and no source points outside the project.
 5. In Model view, verify five active single-direction relationships and confirm that `FactTargetCustomer` plus all `p*` tables have no relationship lines.
-6. In DAX Query view or temporary cards, verify `[Descriptive Customer Count] = 7,043`, `[Held-out Test Customer Count] = 1,409`, and the default dynamic values documented above. Delete any temporary verification visuals; Phase 5A does not define report visuals.
-7. Test each scenario's assumptions at 10%, 20%, and 30% capacity against `FactScenarioOutcome`. Values should match within displayed rounding.
+6. Use DAX Query view or the existing report KPI cards to verify `[Descriptive Customer Count] = 7,043`, `[Held-out Test Customer Count] = 1,409`, and the default dynamic values documented above. If temporary verification visuals are added, delete them before saving.
+7. On **Retention Strategy & Scenario Simulator**, test each scenario's assumptions at 10%, 20%, and 30% capacity against `FactScenarioOutcome`. The six disconnected slicers should recalculate the dynamic scenario KPIs, and the validated reference values should match within displayed rounding.
 8. Before sharing or source-controlling the PBIP files, reset `DataRoot` to `<SET_PROJECT_ROOT>` and save. Do not commit a personal path. For a later Service deployment, set an approved organizational path and gateway configuration outside this tracked source.
 
 ## Limitations
 
 - The local validator performs structural and formula-level static checks; it is not the Microsoft TMDL deserializer. Successful Desktop open and refresh remain the authoritative compatibility test.
 - PBIP/TMDL project formats can be version-sensitive. Desktop may add lineage tags, local metadata, or normalize TMDL on first save.
-- The report shell contains only `definition.pbir`. Desktop may materialize additional blank-report metadata when it is first saved.
+- The tracked PBIR report contains three pages and 39 visuals. Power BI Desktop may still normalize report metadata, visual geometry, or local state when the project is opened and saved in a different Desktop version.
 - Tabular `isKey` metadata represents single columns. Composite fact grains are documented and validated against source uniqueness but are not marked as a composite model key.
 - Local `File.Contents` refresh requires a valid `DataRoot`; refresh in Power BI Service will require an approved reachable location and, when applicable, a gateway.
 - Scenario values remain hypothetical expected values, not actual ROI, causal uplift, or verified lifetime value.

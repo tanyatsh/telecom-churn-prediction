@@ -7,6 +7,12 @@ from pathlib import Path
 
 import duckdb
 
+from source_provenance import (
+    EXPECTED_IBM_TELCO_CSV_SHA256,
+    IBM_TELCO_DATASET_KEY,
+    sha256_file,
+)
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CSV = PROJECT_ROOT / "data" / "raw" / "Telco-Customer-Churn.csv"
@@ -117,6 +123,14 @@ def build_database(csv_path: Path, database_path: Path) -> dict[str, int]:
     database_path = database_path.resolve()
     if not csv_path.is_file():
         raise FileNotFoundError(f"Raw CSV not found: {csv_path}")
+
+    actual_sha256 = sha256_file(csv_path)
+    if actual_sha256 != EXPECTED_IBM_TELCO_CSV_SHA256:
+        raise ValueError(
+            "Unexpected source CSV SHA-256: "
+            f"{actual_sha256} != {EXPECTED_IBM_TELCO_CSV_SHA256}"
+        )
+
     database_path.parent.mkdir(parents=True, exist_ok=True)
 
     sql = PREPARE_SQL.read_text(encoding="utf-8").format(csv_path=_sql_string(csv_path))
@@ -124,6 +138,19 @@ def build_database(csv_path: Path, database_path: Path) -> dict[str, int]:
     try:
         connection.execute("BEGIN TRANSACTION")
         connection.execute(sql)
+        connection.execute("CREATE SCHEMA IF NOT EXISTS metadata")
+        connection.execute(
+            """
+            CREATE OR REPLACE TABLE metadata.source_provenance (
+                dataset_key VARCHAR NOT NULL,
+                source_csv_sha256 VARCHAR NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            "INSERT INTO metadata.source_provenance VALUES (?, ?)",
+            [IBM_TELCO_DATASET_KEY, actual_sha256],
+        )
         results = run_checks(connection)
         connection.execute("COMMIT")
         return results

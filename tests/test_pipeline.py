@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
+import shutil
 import sys
 import tempfile
 import unittest
@@ -20,6 +20,11 @@ from prepare_data import (  # noqa: E402
     EXPECTED_RETAINED,
     EXPECTED_ROWS,
     build_database,
+)
+from source_provenance import (  # noqa: E402
+    EXPECTED_IBM_TELCO_CSV_SHA256,
+    IBM_TELCO_DATASET_KEY,
+    sha256_file,
 )
 
 
@@ -71,12 +76,36 @@ class PipelineChecks(unittest.TestCase):
         self.assertEqual(tenure_zero_missing_total, EXPECTED_MISSING_TOTAL_CHARGES)
 
     def test_original_csv_hash_is_unchanged(self) -> None:
-        with self.csv_path.open("rb") as source:
-            digest = hashlib.file_digest(source, "sha256").hexdigest()
+        self.assertEqual(sha256_file(self.csv_path), EXPECTED_IBM_TELCO_CSV_SHA256)
+
+    def test_verified_source_provenance_is_persisted(self) -> None:
+        rows = self.connection.execute(
+            """
+            SELECT dataset_key, source_csv_sha256
+            FROM metadata.source_provenance
+            """
+        ).fetchall()
         self.assertEqual(
-            digest,
-            "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+            rows,
+            [(IBM_TELCO_DATASET_KEY, EXPECTED_IBM_TELCO_CSV_SHA256)],
         )
+
+    def test_byte_modified_csv_is_rejected_before_database_creation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temporary_root = Path(temporary_directory)
+            modified_csv = temporary_root / self.csv_path.name
+            rejected_database = temporary_root / "rejected.duckdb"
+            shutil.copyfile(self.csv_path, modified_csv)
+
+            content = modified_csv.read_bytes()
+            original_value = b"29.85"
+            replacement_value = b"29.86"
+            self.assertIn(original_value, content)
+            modified_csv.write_bytes(content.replace(original_value, replacement_value, 1))
+
+            with self.assertRaisesRegex(ValueError, "Unexpected source CSV SHA-256"):
+                build_database(modified_csv, rejected_database)
+            self.assertFalse(rejected_database.exists())
 
     def test_churn_totals(self) -> None:
         churned, retained, missing_target = self.connection.execute(

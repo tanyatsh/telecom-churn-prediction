@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import importlib.metadata
 import json
 import math
@@ -39,6 +38,12 @@ from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_sp
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
+from source_provenance import (
+    EXPECTED_IBM_TELCO_CSV_SHA256,
+    IBM_TELCO_DATASET_KEY,
+    sha256_file,
+)
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATABASE = PROJECT_ROOT / "data" / "processed" / "telco_churn.duckdb"
@@ -51,7 +56,6 @@ DECISION_THRESHOLD = 0.50
 TOP_FRACTION = 0.20
 EXPECTED_ROWS = 7_043
 EXPECTED_CHURNED = 1_869
-EXPECTED_RAW_SHA256 = "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91"
 
 IDENTIFIER_COLUMN = "customer_id"
 TARGET_COLUMN = "churned"
@@ -132,14 +136,6 @@ AVAILABILITY_NOTES = {
 }
 
 
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as source:
-        for block in iter(lambda: source.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
-
-
 def load_analytical_dataset(database_path: Path) -> pd.DataFrame:
     if not database_path.is_file():
         raise FileNotFoundError(
@@ -161,6 +157,39 @@ def load_analytical_dataset(database_path: Path) -> pd.DataFrame:
     if int(data["total_charges"].isna().sum()) != 11:
         raise ValueError("Expected 11 unmodified missing TotalCharges values")
     return data
+
+
+def load_verified_source_sha256(database_path: Path) -> str:
+    """Read and validate the source CSV provenance stored in DuckDB."""
+    if not database_path.is_file():
+        raise FileNotFoundError(f"Validated DuckDB database not found: {database_path}")
+
+    connection = duckdb.connect(str(database_path), read_only=True)
+    try:
+        rows = connection.execute(
+            """
+            SELECT source_csv_sha256
+            FROM metadata.source_provenance
+            WHERE dataset_key = ?
+            """,
+            [IBM_TELCO_DATASET_KEY],
+        ).fetchall()
+    except duckdb.Error as error:
+        raise ValueError("DuckDB source provenance is missing or unreadable") from error
+    finally:
+        connection.close()
+
+    if len(rows) != 1:
+        raise ValueError(
+            "DuckDB source provenance must contain exactly one IBM Telco checksum row"
+        )
+    source_sha256 = str(rows[0][0]).lower()
+    if source_sha256 != EXPECTED_IBM_TELCO_CSV_SHA256:
+        raise ValueError(
+            "Unexpected DuckDB source provenance SHA-256: "
+            f"{source_sha256} != {EXPECTED_IBM_TELCO_CSV_SHA256}"
+        )
+    return source_sha256
 
 
 def create_split_membership(data: pd.DataFrame) -> pd.DataFrame:
@@ -439,7 +468,9 @@ def train_and_evaluate(database_path: Path, artifact_root: Path, version: str) -
         raise FileExistsError(f"Artifact version already exists; choose a new --version: {target_dir}")
     artifact_root.mkdir(parents=True, exist_ok=True)
 
-    data = load_analytical_dataset(database_path.resolve())
+    database_path = database_path.resolve()
+    source_sha256 = load_verified_source_sha256(database_path)
+    data = load_analytical_dataset(database_path)
     membership = create_split_membership(data)
     x_train, y_train, x_test, y_test = partition_dataset(data, membership)
     selected_name, selected_model, comparison, candidates, selection = run_model_selection(
@@ -487,7 +518,7 @@ def train_and_evaluate(database_path: Path, artifact_root: Path, version: str) -
             "train_prevalence": float(y_train.mean()),
             "test_prevalence": float(y_test.mean()),
             "missing_total_charges_before_preprocessing": int(data["total_charges"].isna().sum()),
-            "raw_csv_sha256": EXPECTED_RAW_SHA256,
+            "raw_csv_sha256": source_sha256,
             "test_policy": "Test labels were used once, after CV model selection, for final evaluation only.",
         }
         _write_json(staging_dir / f"run_manifest_{version}.json", run_manifest)

@@ -41,24 +41,24 @@ The data source provides no feature timestamps or target observation window. Ten
 
 ## Cross-validation comparison
 
-The table reports the best searched configuration for each model family. Log loss and Brier score are lower-is-better; ROC-AUC and PR-AUC are higher-is-better.
+The table reports the best searched configuration for each model family. Log loss and Brier score are lower-is-better; ROC-AUC and Average Precision (AP) are higher-is-better. AP is calculated with scikit-learn's `average_precision` scorer: the recall-weighted mean of precision across thresholds, not trapezoidal area under an interpolated precision-recall curve. Machine-readable `pr_auc` field names are retained for backward compatibility.
 
-| Model | Best searched configuration | CV ROC-AUC | CV PR-AUC | CV log loss | CV Brier |
+| Model | Best searched configuration | CV ROC-AUC | CV Average Precision (AP) | CV log loss | CV Brier |
 |---|---|---:|---:|---:|---:|
 | Logistic regression | `C=10`, no class weighting | 0.84556 ± 0.01037 | 0.65362 ± 0.00783 | 0.41777 | 0.13533 |
 | Histogram gradient boosting | learning rate 0.05, 15 leaves, L2=1.0 | 0.84418 ± 0.01048 | 0.65674 ± 0.01819 | 0.41836 | 0.13588 |
 | Dummy prior classifier | class prior | 0.50000 ± 0.00000 | 0.26535 ± 0.00009 | 0.57858 | 0.19494 |
 
-Logistic regression was selected because it had the highest mean CV ROC-AUC. Its 0.00138 ROC-AUC advantage over histogram gradient boosting is small relative to fold variation; this result does not establish that it will be superior in other samples. The tree model had slightly higher mean CV PR-AUC, but PR-AUC was not the declared selection criterion.
+Logistic regression was selected because it had the highest mean CV ROC-AUC. Its 0.00138 ROC-AUC advantage over histogram gradient boosting is small relative to fold variation; this result does not establish that it will be superior in other samples. The tree model had slightly higher mean CV AP, but AP was not the declared selection criterion.
 
 ## Held-out test results
 
-Baseline prevalence is 26.544%. For reference, a non-informative ranking has ROC-AUC 0.5, and the prevalence reference for PR-AUC is 0.26544.
+Baseline prevalence is 26.544%. For reference, a non-informative ranking has ROC-AUC 0.5, and the prevalence reference for AP is 0.26544.
 
 | Metric | Held-out result |
 |---|---:|
 | ROC-AUC | 0.84385 |
-| PR-AUC | 0.65965 |
+| Average Precision (AP) | 0.65965 |
 | Log loss | 0.41754 |
 | Brier score | 0.13678 |
 | Recall at top 20% | 0.50000 |

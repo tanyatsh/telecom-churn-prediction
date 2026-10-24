@@ -26,13 +26,13 @@ table KPIModelTest
 		displayFolder: Held-out Model KPIs
 		lineageTag: 85e20289-543c-4421-88b7-62fa9862fcf1
 
-	/// Held-out precision-recall area under the curve.
+	/// Held-out Average Precision (AP); measure name retained for compatibility.
 	measure PR-AUC = MAX(KPIModelTest[pr_auc])
 		formatString: 0.0000
 		displayFolder: Held-out Model KPIs
 		lineageTag: c64c924b-0f1e-4198-8889-02d169d1668c
 
-	/// Prevalence reference for held-out PR-AUC.
+	/// Held-out churn prevalence reference for Average Precision (AP).
 	measure 'PR-AUC Baseline' = MAX(KPIModelTest[baseline_pr_auc])
 		formatString: 0.0000
 		displayFolder: Held-out Model KPIs

@@ -10,7 +10,7 @@ Before analysis, the audit verified the recorded SHA-256 hash for every Phase 3A
 
 Two complementary explanation methods were used:
 
-1. **Original-feature permutation importance:** each of the 18 input columns was shuffled as a unit on the fixed test set for 20 deterministic repeats. Importance is the mean decrease in ROC-AUC or PR-AUC. This reflects dependence of held-out predictive performance on a column, including its interactions and redundancy with other fields.
+1. **Original-feature permutation importance:** each of the 18 input columns was shuffled as a unit on the fixed test set for 20 deterministic repeats. Importance is the mean decrease in ROC-AUC or Average Precision (AP). AP uses scikit-learn's non-interpolated `average_precision` definition, not trapezoidal precision-recall curve area. This reflects dependence of held-out predictive performance on a column, including its interactions and redundancy with other fields.
 2. **Saved logistic-regression coefficients:** coefficients were extracted from the fitted pipeline after imputation, scaling, and one-hot encoding. Numeric coefficients represent a one-training-standard-deviation increase. Categorical coefficients correspond to encoded levels.
 
 SHAP was not used. For this regularized linear model, coefficients already expose the fitted linear score, while original-column permutation importance provides a clearer global held-out check. SHAP would not resolve correlated-feature attribution, redundant service categories, or causality and would add a dependency without changing the core interpretation.
@@ -19,7 +19,7 @@ SHAP was not used. For this regularized linear model, coefficients already expos
 
 The strongest held-out dependencies were tenure, internet service, monthly charges, total charges, and contract.
 
-| Rank | Original feature | ROC-AUC decrease | Repeat SD | PR-AUC decrease |
+| Rank | Original feature | ROC-AUC decrease | Repeat SD | AP decrease |
 |---:|---|---:|---:|---:|
 | 1 | `tenure_months` | 0.20804 | 0.01159 | 0.29926 |
 | 2 | `internet_service` | 0.06913 | 0.00731 | 0.16543 |
@@ -63,7 +63,7 @@ Metrics below use the unchanged 0.50 threshold and frozen probabilities. A group
 
 Gender was excluded from model features but is used here for audit grouping. Other model inputs may still act as proxies.
 
-| Group | N | Churned | Prevalence | ROC-AUC | PR-AUC | Brier | Recall | FPR | Mean probability | Flag |
+| Group | N | Churned | Prevalence | ROC-AUC | AP | Brier | Recall | FPR | Mean probability | Flag |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | Female | 716 | 184 | 25.70% | 0.8451 | 0.6691 | 0.1341 | 56.52% | 12.41% | 26.76% | No |
 | Male | 693 | 190 | 27.42% | 0.8446 | 0.6551 | 0.1396 | 50.00% | 9.74% | 25.97% | No |
@@ -72,7 +72,7 @@ Ranking metrics are very similar across these two groups in this split. Female r
 
 ### Contract type
 
-| Group | N | Churned | Prevalence | ROC-AUC | PR-AUC | Brier | Recall | FPR | Flag |
+| Group | N | Churned | Prevalence | ROC-AUC | AP | Brier | Recall | FPR | Flag |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | Month-to-month | 780 | 329 | 42.18% | 0.7520 | 0.6936 | 0.1986 | 60.49% | 25.50% | No |
 | One year | 295 | 36 | 12.20% | 0.7176 | 0.2795 | 0.1000 | 0.00% | 0.00% | No |
@@ -82,7 +82,7 @@ At 0.50 the model predicts no churners in the one- or two-year groups. That thre
 
 ### Tenure groups
 
-| Tenure | N | Churned | Prevalence | ROC-AUC | PR-AUC | Brier | Recall | FPR | Calibration gap | Flag |
+| Tenure | N | Churned | Prevalence | ROC-AUC | AP | Brier | Recall | FPR | Calibration gap | Flag |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | 0 months | 1 | 0 | 0.00% | — | — | 0.0000 | — | 0.00% | +0.00 pp | **Yes** |
 | 1–12 months | 429 | 205 | 47.79% | 0.7758 | 0.7750 | 0.1951 | 69.76% | 31.25% | -0.86 pp | No |

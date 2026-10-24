@@ -1,6 +1,18 @@
 # Power BI dashboard specification
 
-## Report-wide conventions
+## Final implementation status
+
+This document began as the design specification for the report. The completed PBIP/PBIR implementation is the authoritative visual inventory; sections explicitly labelled **initial design proposal** are retained to explain the original analytical and layout rationale, not to imply that every proposed visual was built.
+
+| Completed page | Final visual count | Implemented composition |
+|---|---:|---|
+| Executive Churn Overview | 11 | Header, four descriptive KPI cards, five segment charts, and a key-findings panel |
+| Model Performance & Explainability | 11 | Header, four held-out KPI cards, five diagnostic visuals, and an interpretation/limitations panel |
+| Retention Strategy & Scenario Simulator | 17 | Header, scenario-reference panel, six slicers, six dynamic KPI cards, retrospective targeting table, decision-boundaries panel, and retrospective insight panel |
+
+The final report therefore contains three 1280×720 pages and 39 native visuals. It preserves the approved population boundaries: Page 1 uses the 7,043-customer descriptive population, while Pages 2 and 3 use the frozen 1,409-customer held-out population where stated.
+
+## Design conventions and analytical contract
 
 The report has three 16:9 pages. Use a compact header with page title, a subtitle identifying the IBM Telco dataset, and a small “retrospective / illustrative” status label. Display percentages to one decimal place in overview charts and two decimals in tooltips. Display value estimates as **currency units**, never with a named currency symbol.
 
@@ -10,20 +22,24 @@ Use only single-select slicers where a calculation requires one capacity or one 
 
 Purpose: describe the audited dataset and observed segment associations without implying causation or time trends.
 
-Top KPI row:
+**Final implementation:** Page 1 contains 11 visuals. The implemented KPI cards show customers, observed churn rate, churned customers, and retained customers. The proposed blank-`TotalCharges` card was not used; the 11 retained null values remain documented as a data-quality finding rather than an executive KPI. All five proposed segment topics were implemented, and the proposed scope text became a verified key-findings and interpretation panel.
+
+### Initial design proposal
+
+Top KPI row proposed during design:
 
 - Customers: `7,043`.
 - Churned customers: `1,869`.
 - Observed churn rate: `26.537%`.
 - Blank `TotalCharges`: `11` retained as null.
 
-Main visual row:
+Main visual row proposed during design:
 
 1. Horizontal bar chart: churn rate by contract, with `group_size` in the tooltip.
 2. Ordered column chart: churn rate by tenure band, with `group_size` and `churned_customers` in the tooltip.
 3. Horizontal bar chart: churn rate by internet service.
 
-Lower visual row:
+Lower visual row proposed during design:
 
 1. Bar chart: churn rate by payment method.
 2. Ordered column chart: churn rate by monthly-charge band.
@@ -35,22 +51,28 @@ Use the Phase 2 aggregate tables in the data contract. Set all rate fields to **
 
 Purpose: summarize the frozen Logistic Regression model’s held-out discrimination, calibration, operational ranking, and model explanations.
 
-Top KPI row:
+**Final implementation:** Page 2 contains 11 visuals. Four KPI cards show held-out ROC-AUC, PR-AUC, Recall@Top20%, and Lift@Top20%. The retained `PR-AUC` dashboard label and measure represent scikit-learn Average Precision (AP), not trapezoidal precision-recall curve area. Held-out population and prevalence are stated in the header and interpretation panel rather than separate cards, and Brier score is retained in the analytical outputs rather than promoted as a page KPI. The diagnostic area uses a permutation-importance bar chart, a training-only model-comparison bar chart, a confusion-matrix table, an observed-churn risk-decile chart, and a calibration table, plus an interpretation/limitations panel.
+
+The implemented model-comparison and permutation visuals carry uncertainty fields in tooltips rather than drawn error bars. Calibration is shown as a decile table with predicted risk, observed churn, absolute gap, and ECE—not as an identity-line plot. The confusion matrix is a table rather than a heatmap. The risk-decile chart plots observed churn rate and exposes predicted risk and cumulative capture in tooltips. The proposed subgroup reliability matrix was not placed on the final page; subgroup results remain in the validated analytical outputs and documentation.
+
+### Initial design proposal
+
+Top KPI row proposed during design:
 
 - Held-out customers: `1,409`.
-- Churn prevalence / PR baseline: `26.5436%`.
+- Churn prevalence / AP baseline: `26.5436%`.
 - ROC-AUC: `0.843849`.
-- PR-AUC: `0.659654`.
+- Average Precision (AP; retained as `PR-AUC` in the implemented semantic model): `0.659654`.
 - Brier score: `0.136785`.
 - Recall at top 20%: `50.00%`; lift at top 20%: `2.4982`.
 
-Main visual row:
+Main visual row proposed during design:
 
 1. Model comparison dot plot: mean five-fold CV ROC-AUC with error bars from `std_cv_roc_auc`; clearly label this as training-only cross-validation.
 2. Calibration plot: `mean_predicted_probability` versus `observed_churn_rate` by decile, with a dashed identity reference line. Add expected calibration error `0.024417` in the subtitle.
 3. Confusion-matrix heatmap at the declared illustrative threshold `0.50`: TN `920`, FP `115`, FN `175`, TP `199`.
 
-Lower visual row:
+Lower visual row proposed during design:
 
 1. Original-feature permutation-importance bars, sorted by `roc_auc_decrease_mean`, with uncertainty from `roc_auc_decrease_std`.
 2. Risk-decile chart with churn rate, mean predicted probability, and cumulative churn capture.
@@ -62,7 +84,9 @@ Explanatory text must say that permutation importance and Logistic Regression co
 
 Purpose: separate retrospective ranking performance from a hypothetical, probability-weighted value simulation.
 
-### Fixed-capacity validation section
+### Initial fixed-capacity validation proposal
+
+The original design proposed a `DimCapacity` slicer and four fixed-capacity cards. The final page instead presents all three capacities together in a compact retrospective table and adds a clearly labelled held-out insight panel. There is no separate fixed-capacity slicer or card set in the final PBIR page; the live capacity control belongs to the disconnected `pCapacity` scenario inputs.
 
 Use a single-select `DimCapacity[capacity_label]` slicer. Cards show contacted customers, observed churn capture, precision, and lift from `DimCapacity`. A compact table displays all three fixed capacities:
 
@@ -193,7 +217,13 @@ Formula definitions, with units:
 
 The simulator must use the six dynamic measures as its source. The nine rows in `FactScenarioOutcome` are static validation/reference results only; they must not be presented as if they change with what-if controls.
 
-### Page layout
+### Final implemented page layout
+
+The final Page 3 composition contains a header, a base-case reference panel, six disconnected single-select slicers, and six dynamic KPI cards for net expected scenario value, gross expected retained contribution, campaign cost, contacted customers, expected prevented churn, and break-even effectiveness. The lower section contains the three-row retrospective targeting table, a decision-boundaries panel, and a retrospective held-out insight panel.
+
+The dynamic measures and defaults above are implemented. `Predicted Churn Sum Dynamic` and `Net Expected Value Per Contact Dynamic` remain available semantic-model measures but are not displayed as separate cards. The proposed waterfall, sensitivity small multiples, and validation bookmark were not included in the final 39-visual report.
+
+### Initial page-layout proposal
 
 Left panel: six input controls with units and a prominent “illustrative assumptions” label. Center KPI row: contacted customers, predicted churn sum, expected prevented churn, gross expected retained contribution, campaign cost, and net expected scenario value. Right KPI cards: break-even effectiveness and net value per contact.
 
@@ -203,9 +233,11 @@ Add a validation bookmark that selects the base inputs at 10%, 20%, and 30%; the
 
 ## KPI aggregation rules
 
-- `DimCapacity` cards use `SELECTEDVALUE` or `MAX` after enforcing a single capacity; never `SUM` rates or counts across capacities.
-- `FactScenarioOutcome` and `FactBreakEven` require one scenario and one capacity for scalar cards.
-- `FactSensitivity` visuals group by exactly one `varied_parameter`; never total across varied values.
+These rules remain the analytical contract for the implemented report and for any later addition of a visual retained in the initial proposal.
+
+- The final retrospective table displays `DimCapacity` at its native one-row-per-capacity grain. Any future scalar card based on this table must use `SELECTEDVALUE` or `MAX` after enforcing a single capacity; never `SUM` rates or counts across capacities.
+- `FactScenarioOutcome` and `FactBreakEven` are static validation/reference tables. Any future scalar card based on them requires exactly one scenario and one capacity.
+- `FactSensitivity` small multiples were proposed but not implemented. If added later, each visual must group by exactly one `varied_parameter`; never total across varied values.
 - Customer-level dynamic measures always start from `ALL(FactTargetCustomer)` and use exactly one `TOPN` set.
 - Page 1 and Page 2 aggregate tables remain disconnected; their materialized rates use `MAX` at the native group grain.
 
@@ -213,7 +245,7 @@ Add a validation bookmark that selects the base inputs at 10%, 20%, and 30%; the
 
 This dashboard is descriptive and retrospective. It does not demonstrate that contacting a customer prevents churn, estimate treatment uplift, report actual ROI, or establish verified customer lifetime value. Scenario value is an expected value under hypothetical assumptions. Calibration and subgroup results come from one fixed held-out sample. The dataset has no event dates for trend conclusions and no named currency.
 
-Before a PBIX or template is created, confirm:
+For any future PBIX/template export or deployment, confirm:
 
 1. `DataRoot` resolves in Desktop and the intended Service refresh environment.
 2. All key columns retain the types in the data contract and all required single-select slicers are enforced.

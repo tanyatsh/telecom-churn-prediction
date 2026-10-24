@@ -127,7 +127,7 @@ The Git-ignored `outputs/powerbi/phase4a/v1/` directory contains:
 - `customer_targeting_v1.csv`: customer ID, frozen probability, risk rank, monthly charges, capacity flags, and base-case expected values. It intentionally excludes actual churn labels.
 - `run_manifest_v1.json` and `output_hashes_v1.json`: source hashes, formulas, rules, and output integrity.
 
-No Power BI visual or dashboard has been created.
+These exports feed the completed three-page `powerbi/TelecomChurn.pbip` report. Its **Retention Strategy & Scenario Simulator** page combines six disconnected what-if slicers, dynamic scenario KPI cards, the three-row retrospective targeting-capacity table, and an interpretation panel. The dynamic financial outputs remain hypothetical calculations from frozen predicted probabilities and selected assumptions; the dashboard does not demonstrate deployed interventions, measured treatment uplift, realized profit, or actual ROI.
 
 ## Operational interpretation and unresolved risks
 

@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 import joblib
+import duckdb
 import numpy as np
 import pandas as pd
 
@@ -22,6 +24,12 @@ from train_models import (  # noqa: E402
     TARGET_COLUMN,
     create_split_membership,
     load_analytical_dataset,
+    load_verified_source_sha256,
+    train_and_evaluate,
+)
+from source_provenance import (  # noqa: E402
+    EXPECTED_IBM_TELCO_CSV_SHA256,
+    IBM_TELCO_DATASET_KEY,
 )
 
 
@@ -47,6 +55,9 @@ class ModelingArtifactChecks(unittest.TestCase):
         cls.model = joblib.load(cls.artifact_dir / "churn_model_v1.joblib")
         cls.feature_manifest = json.loads(
             (cls.artifact_dir / "feature_manifest_v1.json").read_text(encoding="utf-8")
+        )
+        cls.run_manifest = json.loads(
+            (cls.artifact_dir / "run_manifest_v1.json").read_text(encoding="utf-8")
         )
 
     def test_split_integrity(self) -> None:
@@ -101,6 +112,51 @@ class ModelingArtifactChecks(unittest.TestCase):
         self.assertEqual(int(self.data["total_charges"].isna().sum()), 11)
         numeric_pipeline = self.model.named_steps["preprocess"].named_transformers_["numeric"]
         self.assertIn("imputer", numeric_pipeline.named_steps)
+
+    def test_training_manifest_uses_verified_database_provenance(self) -> None:
+        verified_sha256 = load_verified_source_sha256(self.database_path)
+        self.assertEqual(verified_sha256, EXPECTED_IBM_TELCO_CSV_SHA256)
+        self.assertEqual(self.run_manifest["raw_csv_sha256"], verified_sha256)
+
+    def test_missing_database_provenance_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            database_path = Path(temporary_directory) / "missing.duckdb"
+            connection = duckdb.connect(str(database_path))
+            connection.close()
+            with self.assertRaisesRegex(ValueError, "provenance is missing or unreadable"):
+                train_and_evaluate(
+                    database_path,
+                    Path(temporary_directory) / "artifacts",
+                    "missing-provenance",
+                )
+
+    def test_incorrect_database_provenance_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            database_path = Path(temporary_directory) / "incorrect.duckdb"
+            connection = duckdb.connect(str(database_path))
+            try:
+                connection.execute("CREATE SCHEMA metadata")
+                connection.execute(
+                    """
+                    CREATE TABLE metadata.source_provenance (
+                        dataset_key VARCHAR NOT NULL,
+                        source_csv_sha256 VARCHAR NOT NULL
+                    )
+                    """
+                )
+                connection.execute(
+                    "INSERT INTO metadata.source_provenance VALUES (?, ?)",
+                    [IBM_TELCO_DATASET_KEY, "0" * 64],
+                )
+            finally:
+                connection.close()
+
+            with self.assertRaisesRegex(ValueError, "Unexpected DuckDB source provenance"):
+                train_and_evaluate(
+                    database_path,
+                    Path(temporary_directory) / "artifacts",
+                    "incorrect-provenance",
+                )
 
 
 if __name__ == "__main__":

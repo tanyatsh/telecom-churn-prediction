@@ -13,7 +13,7 @@ An end-to-end data analytics and machine-learning portfolio project built on the
 | Audited customers | 7,043 | Full descriptive population |
 | Observed churn rate | 26.54% | Full descriptive population |
 | Held-out ROC-AUC | 0.84385 | Frozen 1,409-customer test set |
-| Held-out PR-AUC | 0.65965 | Frozen 1,409-customer test set |
+| Held-out Average Precision (AP) | 0.65965 | Frozen 1,409-customer test set |
 | Recall at top 20% | 50% | Retrospective held-out targeting evaluation |
 
 The dashboard deliberately separates descriptive results for all 7,043 customers from model diagnostics on the frozen 1,409-customer held-out set. Retention-value outputs are scenario estimates based on configurable assumptions—not measured campaign impact, verified retention uplift, realized profit, or actual ROI.
@@ -51,25 +51,70 @@ Six disconnected what-if controls combine frozen predicted probabilities with ex
 
 ## Reproducible setup
 
-From the project root in Windows PowerShell:
+The raw IBM CSV and all generated analytical/model artifacts are intentionally excluded from Git. From a fresh clone, run the following commands in order from the project root in Windows PowerShell.
+
+### 1. Create the environment and install dependencies
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements.txt
+```
+
+### 2. Download and verify the audited source CSV
+
+```powershell
+New-Item -ItemType Directory -Force data\raw | Out-Null
+Invoke-WebRequest `
+  -Uri "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv" `
+  -OutFile "data\raw\Telco-Customer-Churn.csv"
+
+$expectedHash = "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91"
+$actualHash = (Get-FileHash "data\raw\Telco-Customer-Churn.csv" -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($actualHash -ne $expectedHash) { throw "Unexpected source CSV SHA-256: $actualHash" }
+```
+
+The URL and SHA-256 value are recorded in [`docs/data_audit.md`](docs/data_audit.md).
+
+### 3. Build every prerequisite artifact in dependency order
+
+```powershell
+# Phase 2: typed DuckDB database and EDA exports
 .\.venv\Scripts\python src\prepare_data.py
 .\.venv\Scripts\python src\run_eda.py
+
+# Phase 3A and 3B: frozen model artifacts, explainability, and reliability outputs
+.\.venv\Scripts\python src\train_models.py
+.\.venv\Scripts\python src\audit_model.py
+
+# Phase 4A and 4B: targeting/scenario exports and independently reconciled contracts
+.\.venv\Scripts\python src\retention_scenarios.py
+.\.venv\Scripts\python src\validate_powerbi_contract.py
+
+# Phase 5A: PBIP/TMDL structure and scenario reconciliation artifacts
+.\.venv\Scripts\python src\validate_pbip_model.py
+```
+
+Each versioned generator refuses to overwrite an existing `v1` directory. The sequence above is intended for a fresh clone; use an explicit new `--version` for a later run where the script supports versioning.
+
+### 4. Run the complete test suite
+
+```powershell
 .\.venv\Scripts\python -m unittest discover -s tests -v
 ```
 
-Generated outputs are intentionally excluded from Git:
+Do not run the complete suite before step 3 finishes: several tests intentionally load the frozen Phase 3A/3B artifacts, Phase 4A exports, and Phase 4B/5A validation summaries from disk.
+
+Generated outputs are Git-ignored:
 
 - `data/processed/telco_churn.duckdb`
 - `outputs/eda/*.csv`
 - `artifacts/phase3a/v1/`
 - `artifacts/phase3b/v1/`
 - `outputs/powerbi/phase4a/v1/`
+- `artifacts/phase4b/v1/`
+- `artifacts/phase5a/v1/`
 
-The preparation command runs integrity and reconciliation checks before committing database changes. The test suite independently rebuilds the database in a temporary directory and verifies frozen artifacts, scenario calculations, PBIP structure, paths, relationships, measures, and report bindings.
+The preparation command runs integrity and reconciliation checks before committing database changes. After all prerequisites exist, the test suite independently rebuilds the database in a temporary directory and verifies frozen artifacts, scenario calculations, PBIP structure, paths, relationships, measures, and report bindings.
 
 ## SQL and DuckDB data layer
 
@@ -91,7 +136,6 @@ Preparation logic is in [`sql/01_prepare.sql`](sql/01_prepare.sql), and named ED
 
 ```powershell
 .\.venv\Scripts\python src\train_models.py
-.\.venv\Scripts\python -m unittest discover -s tests -v
 ```
 
 The modeling pipeline reads the validated DuckDB table without changing it. It creates a deterministic stratified split, fits preprocessing only within training folds, compares three model families using five-fold cross-validation on the training partition, and evaluates the selected model once on the held-out test partition.
@@ -102,7 +146,6 @@ Versioned outputs are written to the Git-ignored `artifacts/phase3a/v1/` directo
 
 ```powershell
 .\.venv\Scripts\python src\audit_model.py
-.\.venv\Scripts\python -m unittest discover -s tests -v
 ```
 
 The audit loads the frozen Phase 3A pipeline, split, and predictions. It does not fit, tune, or reselect a model. It calculates original-column permutation importance, extracts logistic-regression coefficients, reports fixed-test subgroup diagnostics, and reconciles calibration and risk deciles. Versioned outputs are written to the Git-ignored `artifacts/phase3b/v1/` directory.
@@ -112,7 +155,6 @@ The audit loads the frozen Phase 3A pipeline, split, and predictions. It does no
 ```powershell
 .\.venv\Scripts\python src\retention_scenarios.py
 .\.venv\Scripts\python src\validate_powerbi_contract.py
-.\.venv\Scripts\python -m unittest discover -s tests -v
 ```
 
 The retention workflow consumes the frozen held-out predictions without changing the model. It evaluates fixed top-risk contact capacities using actual churn labels only for retrospective aggregate evaluation. The financial scenario model then combines predicted churn probabilities with explicitly hypothetical assumptions for contact capacity, relative risk reduction, contribution margin, benefit horizon, contact cost, and optional offer cost.
@@ -131,7 +173,6 @@ The semantic model contains 19 imported analytical tables, six disconnected para
 
 ```powershell
 .\.venv\Scripts\python src\validate_pbip_model.py
-.\.venv\Scripts\python -m unittest discover -s tests -v
 ```
 
 The validator checks the three-page/39-visual report contract, table sources, grains, keys, relationships, disconnected tables, 49-measure inventory, neutral `DataRoot` parameter, Microsoft schema declarations, unresolved Power Query changes, personal paths, and publication exclusions. It independently reconciles all nine Phase 4A scenario-capacity outcomes.
